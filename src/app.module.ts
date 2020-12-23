@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AlgorandModule } from './algorand.module';
+import { AlgorandModule } from './algorand/algorand.module';
 
 @Module({
   imports: [AlgorandModule],
