@@ -2,6 +2,7 @@ import Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AlgorandModule } from './algorand/algorand.module';
+import { DatabaseModule } from './database/database.module';
 
 const validationSchema = Joi.object({
   POSTGRES_HOST: Joi.string().required(),
@@ -16,7 +17,7 @@ const validationSchema = Joi.object({
 });
 
 @Module({
-  imports: [AlgorandModule, ConfigModule.forRoot({validationSchema})],
+  imports: [AlgorandModule, ConfigModule.forRoot({validationSchema}), DatabaseModule],
   controllers: [],
   providers: [],
 })
