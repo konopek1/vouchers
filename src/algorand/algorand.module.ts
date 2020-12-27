@@ -7,6 +7,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 @Module({
   imports: [ConfigModule],
   controllers: [AlgorandController],
-  providers: [AlgorandClient, AlgorandService, ConfigService],
+  providers: [AlgorandClient, AlgorandService],
 })
 export class AlgorandModule {}

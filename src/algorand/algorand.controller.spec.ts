@@ -13,7 +13,7 @@ describe('AppController', () => {
     app = await Test.createTestingModule({
       imports: [ConfigModule],
       controllers: [AlgorandController],
-      providers: [AlgorandService, AlgorandClient, ConfigService],
+      providers: [AlgorandService, AlgorandClient],
     }).compile();
 
     algorandService = app.get<AlgorandService>(AlgorandService);
