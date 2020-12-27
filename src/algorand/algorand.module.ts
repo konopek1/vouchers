@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import AlgorandController from './algorand.controller';
 import AlgorandService from './algorand.service';
 import AlgorandClient from '../lib/AlgorandClient';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [],
+  imports: [ConfigModule],
   controllers: [AlgorandController],
-  providers: [AlgorandClient, AlgorandService],
+  providers: [AlgorandClient, AlgorandService, ConfigService],
 })
 export class AlgorandModule {}

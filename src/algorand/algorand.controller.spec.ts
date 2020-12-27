@@ -1,3 +1,4 @@
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import AlgorandClient from '../lib/AlgorandClient';
 import AlgorandController from './algorand.controller';
@@ -10,8 +11,9 @@ describe('AppController', () => {
 
   beforeAll(async () => {
     app = await Test.createTestingModule({
+      imports: [ConfigModule],
       controllers: [AlgorandController],
-      providers: [AlgorandService, AlgorandClient],
+      providers: [AlgorandService, AlgorandClient, ConfigService],
     }).compile();
 
     algorandService = app.get<AlgorandService>(AlgorandService);
