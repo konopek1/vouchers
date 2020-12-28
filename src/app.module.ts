@@ -13,7 +13,9 @@ const validationSchema = Joi.object({
   PORT: Joi.number(),
   ALGORAND_TOKEN: Joi.string().required(),
   ALGORAND_URL: Joi.string().required(),
-  ALGORAND_PORT: Joi.number().required()
+  ALGORAND_PORT: Joi.number().required(),
+  JWT_SECRET: Joi.string().required(),
+  JWT_EXPIRATION_TIME: Joi.string().required()
 });
 
 @Module({

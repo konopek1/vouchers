@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import AlgorandController from './algorand.controller';
 import AlgorandService from './algorand.service';
 import AlgorandClient from '../lib/AlgorandClient';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
+import { AuthenticationModule } from 'src/authentication/authentication.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, AuthenticationModule],
   controllers: [AlgorandController],
   providers: [AlgorandClient, AlgorandService],
 })

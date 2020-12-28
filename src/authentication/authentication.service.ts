@@ -3,11 +3,16 @@ import RegisterDto from "./RegisterDto";
 import * as bcrypt from "bcrypt";
 import { PostgresErrorCode } from "src/database/postgresErrorCode.enum";
 import { HttpException, HttpStatus } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
+import TokenPayload from "./TokenPayload";
 
 export class AuthenticationService {
     constructor(
-        private readonly userService: UserService
-    ) {}
+        private readonly userService: UserService,
+        private readonly jwtService: JwtService,
+        private readonly configService: ConfigService
+        ) {}
 
     public async register(registerData: RegisterDto) {
         const hashedPassword = await bcrypt.hash(registerData.password, 10);
@@ -52,4 +57,15 @@ export class AuthenticationService {
             throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
         }
     }
+
+    public createClearCookie() {
+        return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+    }
+
+    public createJWTCookie(userId: number) {
+        const payload: TokenPayload = { userId };
+        const token = this.jwtService.sign(payload);
+        return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}`;
+    }
+
 }

@@ -14,6 +14,10 @@ export class UserService {
     async getByEmail(email: string) {
         return await this.userRepository.findOneOrFail({email});
     }
+
+    async getById(id: number) {
+        return await this.userRepository.findOneOrFail({id});
+    }
     
     async create(userData: CreateUserDto) {
         const newUser = await this.userRepository.create(userData);
