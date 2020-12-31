@@ -2,6 +2,18 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Set up dev environment
+* works on linux and windows
+* docker-compose and docker required
+* provide
+  * algorand client (sandbox)
+  * postgresql
+  * pgadmin
+```bash
+$ docker-compose up
+$ 
+```
+
 ## Installation
 
 ```bash

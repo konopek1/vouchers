@@ -25,6 +25,19 @@ services:
     - docker.env
     networks:
     - postgres
+  
+  algod:
+    container_name: "algorand-sandbox-algod"
+    build:
+      context: .
+      dockerfile: ./images/algod/Dockerfile
+      args:
+        TOKEN: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        ALGOD_PORT: "4001"
+        KMD_PORT: "4002"
+    ports:
+      - 4001:4001
+      - 4002:4002
  
 networks:
   postgres:
