@@ -1,12 +1,13 @@
 import { UserService } from "src/user/user.service";
 import RegisterDto from "./RegisterDto";
 import * as bcrypt from "bcrypt";
-import { PostgresErrorCode } from "src/database/postgresErrorCode.enum";
-import { HttpException, HttpStatus } from "@nestjs/common";
+import { PostgresErrorCode } from "../database/postgresErrorCode.enum";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import TokenPayload from "./TokenPayload";
 
+@Injectable()
 export class AuthenticationService {
     constructor(
         private readonly userService: UserService,

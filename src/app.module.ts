@@ -1,8 +1,9 @@
-import Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AlgorandModule } from './algorand/algorand.module';
 import { DatabaseModule } from './database/database.module';
+const Joi = require('@hapi/joi');
+
 
 const validationSchema = Joi.object({
   POSTGRES_HOST: Joi.string().required(),
