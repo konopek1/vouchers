@@ -9,5 +9,6 @@ import { AuthenticationModule } from 'src/authentication/authentication.module';
   imports: [ConfigModule, AuthenticationModule],
   controllers: [AlgorandController],
   providers: [AlgorandClient, AlgorandService],
+  exports: [AlgorandService]
 })
 export class AlgorandModule {}
