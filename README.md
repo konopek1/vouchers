@@ -11,7 +11,8 @@
   * pgadmin
 ```bash
 $ docker-compose up
-$ 
+# execute command in algod
+$ docker-compose exec algod goal status
 ```
 
 ## Installation
