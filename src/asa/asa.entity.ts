@@ -6,7 +6,7 @@ export class Asa {
     id: number;
 
     @Column()
-    asaId: string;
+    asaId: number;
 
     @Column()
     name: string;

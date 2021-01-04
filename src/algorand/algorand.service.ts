@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { AssetConfig, DefaultParams, SignedTx, Tx, TxPendingInformation } from './algosdk.types';
+import { AssetConfig, DefaultParams, SignedTx, TxPendingInformation } from './algosdk.types';
 import AlgorandClient from '../lib/AlgorandClient';
-const algosdk = require('algosdk');
+import * as algosdk from 'algosdk'
+import { ConfirmedTxInfo, Transaction, TxSig } from 'algosdk';
 
 
 @Injectable()
@@ -12,9 +13,8 @@ export default class AlgorandService {
     return this.algorandClient.client.getTransactionParams().do();
   }
 
-  async createAssetTx(assetConfig: AssetConfig): Promise<Tx> {
+  async createAssetTx(assetConfig: AssetConfig): Promise<Transaction> {
     const defaultParameters = await this.getTransactionDefaultParameters();
-
     const asa = algosdk.makeAssetCreateTxnWithSuggestedParams(
       assetConfig.addr,
       assetConfig.note,
@@ -35,12 +35,9 @@ export default class AlgorandService {
     return asa;
   }
 
-  async sendSignedTx(signedTx: SignedTx): Promise<TxPendingInformation> {
-    try {
-      await this.algorandClient.client.sendRawTransaction(signedTx.blob).do();
-    } catch(e) {
-      console.log(e)
-    }
+  async sendSignedTx(signedTx: TxSig): Promise<ConfirmedTxInfo> {
+    await this.algorandClient.client.sendRawTransaction(signedTx.blob).do();
+
     return await this.algorandClient.waitForConfirmation(signedTx.txID); 
   }
 

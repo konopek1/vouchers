@@ -1,11 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Transaction, TxSig } from "algosdk";
 import AlgorandService from "src/algorand/algorand.service";
-import { AssetInfo, SignedTx, Tx } from "src/algorand/algosdk.types";
+import { SignedTx } from "src/algorand/algosdk.types";
 import { Repository } from "typeorm";
 import { Asa } from "./asa.entity";
 import AssetConfigDto from "./AssetConfigDto";
-const algosdk = require('algosdk');
+import * as algosdk from 'algosdk';
 
 @Injectable()
 export class AsaService {
@@ -15,18 +16,18 @@ export class AsaService {
         private readonly asaRepository: Repository<Asa>
     ) { }
 
-    public async createAsaTx(assetConfig: AssetConfigDto): Promise<Tx> {
+    public async createAsaTx(assetConfig: AssetConfigDto): Promise<Transaction> {
         return this.algorandService.createAssetTx(assetConfig);
     }
 
-    public async createAsa(signedAsaTx: SignedTx): Promise<void> {
+    public async createAsa(signedAsaTx: TxSig): Promise<void> {
 
         const response = await this.algorandService.sendSignedTx(signedAsaTx);
 
-        const decodedAsaTx = algosdk.decodeSignedTransaction(response.signedTx.blob).txn;
+        const decodedAsaTx = algosdk.decodeSignedTransaction(signedAsaTx.blob).txn;
 
         const newAsa = this.asaRepository.create({
-            asaId: response.asaId,
+            asaId: response["asset-index"],
             assetUrl: decodedAsaTx.assetURL,
             name: decodedAsaTx.assetName,
             unitName: decodedAsaTx.assetUnitName,

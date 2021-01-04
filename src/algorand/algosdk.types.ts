@@ -33,81 +33,12 @@ export interface AssetInfo {
   id: string;
 }
 
-export interface Tx {
-  name: 'Transaction';
-  tag: Buffer;
-  from: {
-    publicKey: Uint8Array;
-    checksum: Uint8Array
-  };
-  to?: string;
-  fee?: number;
-  amount?: number;
-  firstRound: number;
-  lastRound: number;
-  note: Uint8Array;
-  genesisID: string;
-  genesisHash: Buffer;
-  lease: Uint8Array;
-  closeRemainderTo: any;
-  voteKey: any;
-  selectionKey: any;
-  voteFirst: any;
-  voteLast: any;
-  voteKeyDilution: any;
-  assetIndex: any;
-  assetTotal: number;
-  assetDecimals: number;
-  assetDefaultFrozen: number;
-  assetManager: {
-    publicKey: Uint8Array;
-    checksum: Uint8Array;
-  };
-  assetReserve: {
-    publicKey: Uint8Array;
-    checksum: Uint8Array;
-  };
-  assetFreeze: {
-    publicKey: Uint8Array;
-    checksum: Uint8Array;
-  };
-  assetClawback: {
-    publicKey: Uint8Array;
-    checksum: Uint8Array;
-  };
-  assetUnitName: string;
-  assetName: string;
-  assetURL: string;
-  assetMetadataHash: string;
-  freezeAccount: string;
-  freezeState: boolean;
-  assetRevocationTarget: string;
-  appIndex: string;
-  appOnComplete: any;
-  appLocalInts: number;
-  appLocalByteSlices: number;
-  appGlobalInts: number;
-  appGlobalByteSlices: number;
-  appApprovalProgram: Program;
-  appClearProgram: Program;
-  appArgs: Uint8Array;
-  appAccounts: any;
-  appForeignApps: any;
-  appForeignAssets: any;
-  type: string;
-  reKeyTo: any;
-  group: any
-}
-
 export interface SignedTx {
   txID: string,
   blob: Uint8Array
 }
 
 export interface TxPendingInformation {
-  signedTx: SignedTx,
-  applicationId: string,
-  asaId: string
+  applicationId: number,
+  asaId: number
 }
-
-type Program = any;
