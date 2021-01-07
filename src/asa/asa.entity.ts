@@ -6,14 +6,20 @@ export class Asa {
     id: number;
 
     @Column()
-    asaId: number;
+    asaID: number;
 
     @Column()
     name: string;
 
     @Column()
     unitName: string;
+
+    @Column()
+    appID: number;
     
     @Column({nullable: true})
     assetUrl: string;
+
+    @Column({default: false})
+    valid: boolean;
 }

@@ -20,16 +20,20 @@ export default class AlgorandClient {
       let currentRound = response["last-round"];
       while (true) {
         const pendingInfo = await this.client.pendingTransactionInformation(txId).do();
-        
+
         if (pendingInfo["confirmed-round"] !== null && pendingInfo["confirmed-round"] > 0) {
           resolve(pendingInfo);
         }
 
         currentRound++;
-        
+
+
+
         await this.client.statusAfterBlock(currentRound).do();
       }
     }
     )
   };
+
+
 }
