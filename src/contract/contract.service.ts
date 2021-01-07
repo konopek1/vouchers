@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { CompileOut, ConfirmedTxInfo, decodeSignedTransaction, makeApplicationCreateTxn, makeApplicationOptInTxn, TxSig } from "algosdk";
+import { CompileOut, ConfirmedTxInfo, decodeSignedTransaction, makeApplicationCreateTxn, makeApplicationNoOpTxn, makeApplicationOptInTxn, TxSig } from "algosdk";
 import AlgorandService from "src/algorand/algorand.service";
 import { Asa } from "src/asa/asa.entity";
 import FileReader from 'src/lib/FileReader';
@@ -12,6 +12,11 @@ import PoiContractDto from "./PoiContractDto";
 
 @Injectable()
 export class ContractService {
+
+    public static SET_LEVEL = "set-level";
+    public static ENABLED = "1";
+    public static DISABLED = "0";
+
 
     constructor(
         private readonly algorandService: AlgorandService,
@@ -30,7 +35,7 @@ export class ContractService {
 
         const suggestedParams = await this.algorandService.getTransactionDefaultParameters();
 
-        const asa = await this.asaRepository.findOneOrFail({id: contractConfig.asaEntityID})
+        const asa = await this.asaRepository.findOneOrFail({ id: contractConfig.asaEntityID })
 
         // TODO Im not sure :(
         const args = new AppArgs(asa.asaID.toString(), "1");
@@ -49,11 +54,11 @@ export class ContractService {
         );
     }
 
-    
+
     public async createPoiContract(signedPoiTx: TxSig): Promise<ConfirmedTxInfo> {
         const decodedTx = decodeSignedTransaction(signedPoiTx.blob).txn;
 
-        const asa = await this.asaRepository.findOneOrFail({ appID: decodedTx.assetIndex});
+        const asa = await this.asaRepository.findOneOrFail({ appID: decodedTx.assetIndex });
 
         asa.appID = decodedTx.appIndex;
 
@@ -65,7 +70,7 @@ export class ContractService {
 
     // have to be signed with algosdk.tealSign
     public async createEscrowTx(asaEntityID: number): Promise<CompileOut> {
-        const asa = await this.asaRepository.findOneOrFail({id: asaEntityID});
+        const asa = await this.asaRepository.findOneOrFail({ id: asaEntityID });
 
         const escrowTealTemplate = await this.fileReader.read(this.configService.get('CLAWBACK_ESCROW_TEAL'));
         const escrowTeal = await renderString(escrowTealTemplate, {
@@ -77,13 +82,40 @@ export class ContractService {
     }
 
     public async createOptInContractTx(asaEntityID: number, from: string) {
-        const asa = await this.asaRepository.findOneOrFail({id: asaEntityID});
+        const asa = await this.asaRepository.findOneOrFail({ id: asaEntityID });
         const suggestedParams = await this.algorandService.getTransactionDefaultParameters();
 
         const optInTx = makeApplicationOptInTxn(from, suggestedParams, asa.appID)
-        
+
         return optInTx;
     }
 
-    
+    public async createCallAddToWhitelistTx(asaEntityID: number, from: string) {
+        const asa = await this.asaRepository.findOneOrFail({ id: asaEntityID });
+        const suggestedParams = await this.algorandService.getTransactionDefaultParameters();
+
+        const args = new AppArgs(ContractService.SET_LEVEL, ContractService.ENABLED);
+
+        const callTx = makeApplicationNoOpTxn(from, suggestedParams, asa.appID, args.parse());
+
+        return callTx;
+    }
+
+    public async createCallRemoveFromWhitelistTx(asaEntityID: number, from: string) {
+        const asa = await this.asaRepository.findOneOrFail({ id: asaEntityID });
+        const suggestedParams = await this.algorandService.getTransactionDefaultParameters();
+
+        const args = new AppArgs(ContractService.SET_LEVEL, ContractService.DISABLED);
+
+        const callTx = makeApplicationNoOpTxn(from, suggestedParams, asa.appID, args.parse());
+
+        return callTx;
+    }
+
+    public async createCallFromWhitelist(signedTx: TxSig): Promise<void> {
+        // TODO: edit asa whitelist
+        const decodedTx = decodeSignedTransaction(signedTx.blob).txn;
+
+        await this.algorandService.sendSignedTx(signedTx);
+    }
 }

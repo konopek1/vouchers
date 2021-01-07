@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { AssetResult, CompileOut, ConfirmedTxInfo, SuggestedParams, TxSig } from 'algosdk';
 import AlgorandClient from '../lib/AlgorandClient';
-import { AssetParams, AssetResult, CompileOut, ConfirmedTxInfo, SuggestedParams, TxSig } from 'algosdk';
 
 
 @Injectable()
