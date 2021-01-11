@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AssetResult, CompileOut, ConfirmedTxInfo, SuggestedParams, TxSig } from 'algosdk';
 import AlgorandClient from '../lib/AlgorandClient';
 
@@ -12,13 +12,22 @@ export default class AlgorandService {
   }
 
   async sendSignedTx(signedTx: TxSig): Promise<ConfirmedTxInfo> {
-    await this.algorandClient.client.sendRawTransaction(signedTx.blob).do();
+    let rv;
+    
+    try {
+      await this.algorandClient.client.sendRawTransaction(signedTx.blob).do();
 
-    return await this.algorandClient.waitForConfirmation(signedTx.txID); 
+      rv = await this.algorandClient.waitForConfirmation(signedTx.txID);
+    }
+    catch (e) {
+      throw new HttpException(`Transaction submission error: ${e.response.body.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    return rv;
   }
 
   async compile(program: string): Promise<CompileOut> {
-    return await this.algorandClient.client.compile(program).do();    
+    return await this.algorandClient.client.compile(program).do();
   }
 
   async getAsa(asaID: number): Promise<AssetResult> {
