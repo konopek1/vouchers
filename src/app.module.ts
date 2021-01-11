@@ -17,7 +17,10 @@ const validationSchema = Joi.object({
   ALGORAND_URL: Joi.string().required(),
   ALGORAND_PORT: Joi.number().required(),
   JWT_SECRET: Joi.string().required(),
-  JWT_EXPIRATION_TIME: Joi.string().required()
+  JWT_EXPIRATION_TIME: Joi.string().required(),
+  CLAWBACK_ESCROW_TEAL: Joi.string().required(), 
+  POI_TEAL: Joi.string().required(),
+  POI_CLEAR_TEAL: Joi.string().required()
 });
 
 @Module({
