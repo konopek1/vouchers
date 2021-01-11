@@ -1,9 +1,9 @@
 #pragma version 2
 // Application ID - Must be changed before compiling
-int {{asaID}}
+int {appID}
 store 10
 // Asset ID - Must be changed before compiling
-int {{assetID}}
+int {asaID}
 store 11
 
 global GroupSize
