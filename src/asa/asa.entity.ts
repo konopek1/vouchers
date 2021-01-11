@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Optional } from "@nestjs/common";
+import User from "src/user/user.entity";
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Asa {
@@ -14,7 +16,7 @@ export class Asa {
     @Column()
     unitName: string;
 
-    @Column()
+    @Column({nullable: true})
     appID: number;
     
     @Column({nullable: true})
@@ -22,4 +24,8 @@ export class Asa {
 
     @Column({default: false})
     valid: boolean;
+
+    @ManyToMany(() => User, {eager: true})
+    @JoinTable()
+    whitelist: User[];
 }

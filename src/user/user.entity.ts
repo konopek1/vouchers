@@ -1,7 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Asa } from "src/asa/asa.entity";
+import Wallet from "src/wallet/wallet.entity";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-class User {
+export default class User {
     @PrimaryGeneratedColumn()
     public id?: number;
 
@@ -10,6 +12,13 @@ class User {
 
     @Column()
     public password: string;
+
+    @ManyToMany(() => Asa)
+    @JoinTable()
+    public assets: Asa[];
+
+    @OneToMany(() => Wallet, (wallet: Wallet) => wallet.owner)
+    public wallets: Wallet[];
+    
 }
 
-export default User;
