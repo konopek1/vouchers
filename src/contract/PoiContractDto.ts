@@ -1,3 +1,4 @@
+import { OnApplicationComplete } from "algosdk";
 import { IsNumber, IsString, Length } from "class-validator";
 
 // TODO: Create default object for storing defaults values this way is 100% insecure
@@ -15,7 +16,7 @@ export default class PoiContractDto {
 
     // reference https://developer.algorand.org/docs/reference/teal/specification/#oncomplete
     @IsNumber()
-    onComplete = 0;
+    onComplete = OnApplicationComplete.NoOpOC;
 
     @IsNumber()
     localBytesSlices = 0;

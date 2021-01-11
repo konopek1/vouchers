@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
-import { Response } from "express";
+import { Request } from "express";
 import { AuthenticationService } from "./authentication.service";
 import RegisterDto from "./RegisterDto";
 import RequestWithUser from "./RequestWithUser";
@@ -18,23 +18,22 @@ export class AuthenticationController {
 
     @UseGuards(AuthGuard('local'))
     @Post('log-in')
-    async logIn(@Req() request: RequestWithUser, @Res() response: Response) {
+    async logIn(@Req() request: RequestWithUser) {
         const user = request.user;
         user.password = undefined;
 
         const cookie = this.authenticationService.createJWTCookie(user.id);
-        response.setHeader('set-cookie',cookie);
+        request.res.setHeader('set-cookie',cookie);
 
-        return response.send(user);
+        return user;
     }
 
     @UseGuards(AuthGuard('jwt'))
     @Post('log-out')
-    async logOut(@Res() response: Response) {
+    @HttpCode(200)
+    async logOut(@Req() request: Request) {
         const clearCookie = this.authenticationService.createClearCookie();
-        response.setHeader('set-cookie',clearCookie);
-
-        return response.sendStatus(200);
+        request.res.setHeader('set-cookie',clearCookie);
     }
 
     @UseGuards(AuthGuard('jwt'))
