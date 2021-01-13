@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { CompileOut, ConfirmedTxInfo, decodeSignedTransaction, encodeObj, makeApplicationCreateTxn, makeApplicationNoOpTxn, makeApplicationOptInTxn, TxSig } from "algosdk";
+import { CompileOut, ConfirmedTxInfo, decodeSignedTransaction, makeApplicationCreateTxn, makeApplicationNoOpTxn, makeApplicationOptInTxn, TxSig } from "algosdk";
 import AlgorandService from "src/algorand/algorand.service";
-import { TxPendingInformation } from "src/algorand/algosdk.types";
 import { Asa } from "src/asa/asa.entity";
 import SignedTxDto from "src/asa/SignedTxDto";
 import FileReader from 'src/lib/FileReader';
+import { areArraysEqual } from "src/lib/Helpers";
 import { Repository } from "typeorm";
 import { AppArg, AppArgs } from "./AppArgs";
 import OptInTxDto from "./OptInTxDto";
@@ -36,7 +36,7 @@ export class ContractService {
         const poiClearTeal = await this.fileReader.read(this.configService.get('POI_CLEAR_TEAL'));
 
         const compiledPoiApprovalTeal = (await this.algorandService.compile(poiApprovalTeal)).result;
-        const compiledPoiClearTeal =  (await this.algorandService.compile(poiClearTeal)).result;
+        const compiledPoiClearTeal = (await this.algorandService.compile(poiClearTeal)).result;
 
         const suggestedParams = await this.algorandService.getTransactionDefaultParameters();
 
@@ -68,7 +68,7 @@ export class ContractService {
         const asa = await this.asaRepository.findOneOrFail({ asaID: algoAsaID });
 
         asa.appID = confirmedTx['application-index'];
-        
+
         await this.asaRepository.save(asa);
 
         return confirmedTx;
@@ -80,7 +80,7 @@ export class ContractService {
         const asa = await this.asaRepository.findOneOrFail({ id: asaEntityID });
 
         const escrowTealTemplate = await this.fileReader.read(this.configService.get('CLAWBACK_ESCROW_TEAL'));
- 
+
         const escrowTeal = parseTemplate(escrowTealTemplate, {
             asaID: asa.asaID,
             appID: asa.appID
@@ -108,7 +108,7 @@ export class ContractService {
 
         const args = new AppArgs(ContractService.SET_LEVEL, ContractService.ENABLED);
 
-        const callTx = makeApplicationNoOpTxn(from, suggestedParams, asa.appID, args.parse(),[target]);
+        const callTx = makeApplicationNoOpTxn(from, suggestedParams, asa.appID, args.parse(), [target]);
 
         return callTx;
     }
@@ -125,14 +125,14 @@ export class ContractService {
     }
 
     public static isSetLevelCall(arg: Uint8Array[]) {
-        return arg[ContractService.CALL_INDEX] === AppArg(ContractService.SET_LEVEL);
+        return areArraysEqual(arg[ContractService.CALL_INDEX], AppArg(ContractService.SET_LEVEL));
     }
 
     public static isEnableArg(arg: Uint8Array[]) {
-        return arg[ContractService.LEVEL_INDEX] === AppArg(ContractService.ENABLED);
+        return areArraysEqual(arg[ContractService.LEVEL_INDEX], AppArg(ContractService.ENABLED));
     }
-    
+
     public static isDisableArg(arg: Uint8Array[]) {
-        return arg[ContractService.LEVEL_INDEX] === AppArg(ContractService.ENABLED);
+        return areArraysEqual(arg[ContractService.LEVEL_INDEX], AppArg(ContractService.DISABLED));
     }
 }
