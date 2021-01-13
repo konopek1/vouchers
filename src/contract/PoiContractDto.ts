@@ -1,7 +1,7 @@
 import { OnApplicationComplete } from "algosdk";
 import { IsNumber, IsString, Length } from "class-validator";
 
-// TODO: Create default object for storing defaults values this way is 100% insecure
+// TODO: Create default object for storing defaults values now this value can be overwritten
 export default class PoiContractDto {
     
     @IsNumber()
