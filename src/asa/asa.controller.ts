@@ -1,16 +1,17 @@
-import { Body, Controller, Get, Post, Put, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Post, Put, UseGuards, UseInterceptors } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { TransactionSerializerInterceptor } from "src/lib/TransactionSerializerInterceptor";
 import { AsaService } from "./asa.service";
 import AssetConfigDto from "./AssetConfigDto";
 import SignedTxDto from "./SignedTxDto";
 import UpdateAsaDto from "./UpdateAsaDto";
+import WhiteListTxDto from "./WhiteListTxDto";
 
-@Controller('asa')
 @UseInterceptors(TransactionSerializerInterceptor)
+@Controller('asa')
 export class AsaController {
     constructor(
-        private readonly asaService: AsaService
+        private readonly asaService: AsaService,
     ) { }
 
     @UseGuards(AuthGuard('jwt'))
@@ -37,7 +38,24 @@ export class AsaController {
         return await this.asaService.updateAsa(signedUpdateAsaTx);
     }
 
-    // @UseGuards(AuthGuard('local'))
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/addToWhitelistTxs')
+    public async addToWhitelistTxs(@Body() whiteListTxDto: WhiteListTxDto) {
+              
+        return await this.asaService.createAddUsersToWhitelistTxs(whiteListTxDto.emails, whiteListTxDto.asaEntityID, whiteListTxDto.from);
+    }
 
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/removeFromWhitelistTxs')
+    public async removeFromWhitelistTxs(@Body() whiteListTxDto: WhiteListTxDto) {
 
+        return await this.asaService.createRemoveUsersFromWhitelistTxs(whiteListTxDto.emails, whiteListTxDto.asaEntityID, whiteListTxDto.from);
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Put('/updateWhitelist')
+    public async updateWhitelist(@Body() signedTxDto: SignedTxDto) {
+
+        return await this.asaService.modifyWhitelist(signedTxDto);
+    }
 }

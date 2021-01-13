@@ -4,13 +4,14 @@ import { AlgorandModule } from "src/algorand/algorand.module";
 import { AuthenticationModule } from "src/authentication/authentication.module";
 import { ContractModule } from "src/contract/contract.module";
 import { TransactionSerializerInterceptor } from "src/lib/TransactionSerializerInterceptor";
+import User from "src/user/user.entity";
 import Wallet from "src/wallet/wallet.entity";
 import { AsaController } from "./asa.controller";
 import { Asa } from "./asa.entity";
 import { AsaService } from "./asa.service";
 
 @Module({
-    imports: [AlgorandModule, TypeOrmModule.forFeature([Asa, Wallet]), AuthenticationModule, ContractModule],
+    imports: [AlgorandModule, TypeOrmModule.forFeature([Asa, Wallet, User]), AuthenticationModule, ContractModule],
     providers: [AsaService, TransactionSerializerInterceptor],
     controllers: [AsaController],
     exports: []

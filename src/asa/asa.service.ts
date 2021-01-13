@@ -1,13 +1,12 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, UseInterceptors } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as algosdk from 'algosdk';
 import { ConfirmedTxInfo, encodeAddress, Transaction, TxSig } from "algosdk";
 import AlgorandService from "src/algorand/algorand.service";
-import { TxPendingInformation } from "src/algorand/algosdk.types";
 import { ContractService } from "src/contract/contract.service";
 import User from "src/user/user.entity";
 import Wallet from "src/wallet/wallet.entity";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { Asa } from "./asa.entity";
 import AssetConfigDto from "./AssetConfigDto";
 import SignedTxDto from "./SignedTxDto";
@@ -21,8 +20,11 @@ export class AsaService {
         private readonly asaRepository: Repository<Asa>,
         @InjectRepository(Wallet)
         private readonly walletRepository: Repository<Wallet>,
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
         private readonly contractService: ContractService,
-    ) { }
+    ) {
+    }
 
 
     async createAsaTx(assetConfig: AssetConfigDto): Promise<Transaction> {
@@ -89,42 +91,55 @@ export class AsaService {
         return await this.algorandService.sendSignedTx(signedUpdateAsaTx);
     }
 
-    public async createAddUsersToWhitelistTxs(users: User[], entityAsaID: number, from: string): Promise<any[]> {
+    public async createAddUsersToWhitelistTxs(emails: string[], entityAsaID: number, from: string): Promise<any[]> {
+        const users = await this.userRepository.find(
+            { where: { email: In(emails) }, relations: ['wallets'] }
+            );
         const asa = await this.asaRepository.findOneOrFail(entityAsaID);
 
         const notWhitelistedUsers = users.filter(
             (user: User) => !asa.whitelist.includes(user)
         );
 
-        const transactions = notWhitelistedUsers.map(
+        const transactions = await Promise.all(notWhitelistedUsers.map(
             async (user: User) => {
+                let target: string;
 
-                const target = user.wallets.find((w) => w.asa.asaID === entityAsaID).publicKey;
+                try {
+                    target = user.wallets.find((w) => w.asa.id === entityAsaID).publicKey;
+                } catch (e) {
+                    throw new HttpException(`No wallet found for user ${user.email}`, HttpStatus.BAD_REQUEST);
+                }
 
                 return await this.contractService.createCallAddToWhitelistTx(entityAsaID, from, target);
             }
-        );
+        ));
 
         return transactions;
     }
 
 
-    public async createRemoveUsersFromWhitelistTxs(users: User[], entityAsaID: number, from: string): Promise<any[]> {
-
+    public async createRemoveUsersFromWhitelistTxs(emails: string[], entityAsaID: number, from: string): Promise<any[]> {
+        const users = await this.userRepository.find({ where: { email: In(emails) } });
         const asa = await this.asaRepository.findOneOrFail(entityAsaID);
 
         const whitelistedUsers = users.filter(
             (user: User) => asa.whitelist.includes(user)
         );
-
-        const transactions = whitelistedUsers.map(
+        //TODO: In wallet module and find wallet by AsaEntityID and email duplicated code with above
+        const transactions = await Promise.all(whitelistedUsers.map(
             async (user: User) => {
+                let target: string;
 
-                const target = user.wallets.find((w: Wallet) => w.asa.asaID === entityAsaID).publicKey;
+                try {
+                    target = user.wallets.find((w) => w.asa.asaID === entityAsaID).publicKey;
+                } catch (e) {
+                    throw new HttpException(`No wallet found for user ${user.email} for ASA ${entityAsaID}`, HttpStatus.BAD_REQUEST);
+                }
 
                 return await this.contractService.createCallRemoveFromWhitelistTx(entityAsaID, from, target);
             }
-        )
+        ));
 
         return transactions;
     }
@@ -140,14 +155,14 @@ export class AsaService {
         const appArgs = decodedTx.appArgs;
 
         if (ContractService.isSetLevelCall(appArgs)) {
-            const user = (await this.walletRepository.findOneOrFail({ publicKey: encodeAddress(whiteListedAccounts[0]) })).owner;
+            const user = (await this.walletRepository.findOneOrFail({ publicKey: encodeAddress(whiteListedAccounts[0].publicKey) })).owner;
 
             if (ContractService.isEnableArg(appArgs)) {
                 asa.whitelist.push(user);
             } else if (ContractService.isDisableArg(appArgs[1])) {
                 asa.whitelist = asa.whitelist.filter((u: User) => u.id !== user.id);
             }
-            
+
             await this.asaRepository.save(asa);
 
 
