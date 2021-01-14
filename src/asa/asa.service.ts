@@ -30,7 +30,7 @@ export class AsaService {
     }
 
     async getByAppIDOrFail(appID: number) {
-        return await this.asaRepository.findOneOrFail({appID});
+        return await this.asaRepository.findOneOrFail({ appID });
     }
 
     async createAsaTx(assetConfig: AssetConfigDto): Promise<Transaction> {
@@ -66,6 +66,8 @@ export class AsaService {
             assetUrl: decodedAsaTx.assetURL,
             name: decodedAsaTx.assetName,
             unitName: decodedAsaTx.assetUnitName,
+            manager: decodedAsaTx.assetManager.publicKey,
+            clawback: decodedAsaTx.assetClawback.publicKey,
         })
 
         return await this.asaRepository.save(newAsa);
@@ -80,7 +82,7 @@ export class AsaService {
 
         const updateAsaTx = algosdk.makeAssetConfigTxnWithSuggestedParams(
             asset.params.manager,
-            new Uint8Array(),
+            EMPTY_NOTE,
             asa.asaID,
             asset.params.manager,
             asset.params.reserve,
@@ -93,8 +95,18 @@ export class AsaService {
         return updateAsaTx;
     }
 
-    public async updateAsa(signedUpdateAsaTx: SignedTxDto): Promise<ConfirmedTxInfo> {
-        return await this.algorandService.sendSignedTx(signedUpdateAsaTx);
+    public async updateAsa(signedUpdateAsaTx: SignedTxDto): Promise<Asa> {
+        const decodedTx = algosdk.decodeSignedTransaction(signedUpdateAsaTx.blob).txn;
+        const asaID = decodedTx.assetIndex;
+        const asa = await this.asaRepository.findOneOrFail({ asaID });
+
+        const confirmedTx = await this.algorandService.sendSignedTx(signedUpdateAsaTx);
+        //TODO hardcoded only for updating clawback should be changed
+        asa.clawback = decodedTx.assetClawback.publicKey;
+
+        await this.asaRepository.save(asa);
+
+        return asa;
     }
 
     public async createAddUsersToWhitelistTxs(emails: string[], entityAsaID: number, from: string): Promise<any[]> {

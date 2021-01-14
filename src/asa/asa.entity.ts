@@ -1,4 +1,3 @@
-import { Optional } from "@nestjs/common";
 import User from "src/user/user.entity";
 import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -21,6 +20,12 @@ export class Asa {
     
     @Column({nullable: true})
     assetUrl: string;
+
+    @Column()
+    clawback: string;
+
+    @Column()
+    manager: string;
 
     @Column({default: false})
     valid: boolean;

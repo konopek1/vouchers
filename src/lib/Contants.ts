@@ -1,0 +1,1 @@
+const EMPTY_NOTE = new Uint8Array();  
