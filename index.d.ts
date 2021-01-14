@@ -261,9 +261,9 @@ declare module 'algosdk'
 
     export function appendSignMultisigTransaction(multisigTxnBlob: any, { version, threshold, addrs }: any, sk: any): any;
 
-    export function assignGroupID(txns: any, from?: any): any;
+    export function assignGroupID(txns: Transaction[], from?: any): Transaction[];
 
-    export function computeGroupID(txns: any): any;
+    export function computeGroupID(txns: Transaction[]): Buffer;
 
     export function decodeObj(o: any): any;
 
@@ -568,4 +568,5 @@ declare module 'algosdk'
         'created-apps': any;
         'created-assets': any;
     }
+
 }
