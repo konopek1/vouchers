@@ -19,6 +19,6 @@ export default class Wallet {
     @ManyToOne(() => Asa, {eager: true})
     asa: Asa
 
-    @ManyToOne(() => User, (user: User) => user.wallets)
+    @ManyToOne(() => User, (user: User) => user.wallets, { eager: true})
     owner: User;
 }
