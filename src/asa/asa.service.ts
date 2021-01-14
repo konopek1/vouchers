@@ -102,7 +102,7 @@ export class AsaService {
         const asa = await this.getByIDOrFail(entityAsaID);
 
         const notWhitelistedUsers = users.filter(
-            (user: User) => !asa.whitelist.includes(user)
+            (user: User) => !asa.whitelist.some(user.compare.bind(user))
         );
 
         const transactions = await Promise.all(notWhitelistedUsers.map(
@@ -122,7 +122,7 @@ export class AsaService {
         const asa = await this.getByIDOrFail(entityAsaID);
 
         const whitelistedUsers = users.filter(
-            (user: User) => asa.whitelist.includes(user)
+            (user: User) => asa.whitelist.some(user.compare.bind(user))
         );
 
         const transactions = await Promise.all(whitelistedUsers.map(
@@ -138,7 +138,7 @@ export class AsaService {
 
     private getWalletAddressByUserAndAsa(user: User, entityAsaID: number): string {
         try {
-            return user.wallets.find((w) => w.asa.asaID === entityAsaID).publicKey;
+            return user.wallets.find((w) => w.asa.id === entityAsaID).publicKey;
         } catch (e) {
             throw new HttpException(`No wallet found for user ${user.email} for ASA ${entityAsaID}`, HttpStatus.BAD_REQUEST);
         }
@@ -156,7 +156,7 @@ export class AsaService {
 
         if (ContractService.isSetLevelCall(appArgs)) {
 
-            const publicKey = encodeAddress(whiteListedAccounts[0]);
+            const publicKey = encodeAddress(whiteListedAccounts[0].publicKey);
             const user = (await this.walletService.getWalletByPublicKeyOrFail(publicKey)).owner;
 
             if (ContractService.isEnableArg(appArgs)) {
