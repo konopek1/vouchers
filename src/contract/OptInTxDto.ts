@@ -6,4 +6,5 @@ export default class OptInTxDto {
 
     @IsNumber()
     entityAsaID: number;
+    
 }
