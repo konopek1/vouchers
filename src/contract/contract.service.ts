@@ -17,8 +17,8 @@ const parseTemplate = require("string-template");
 export class ContractService {
 
     public static SET_LEVEL = "set-level";
-    public static ENABLED = "1";
-    public static DISABLED = "0";
+    public static ENABLED = 1;
+    public static DISABLED = 0;
     public static CALL_INDEX = 0;
     public static ASA_INDEX = 0;
     public static LEVEL_INDEX = 1;
@@ -102,26 +102,23 @@ export class ContractService {
         return await this.algorandService.sendSignedTx(signedOptInTx);
     }
 
-    public async createCallAddToWhitelistTx(asaEntityID: number, from: string, target: string) {
+    private async createCallModifyWhitelistTx(asaEntityID: number, from: string, target: string, appArgs: AppArgs) {
         const asa = await this.asaRepository.findOneOrFail({ id: asaEntityID });
         const suggestedParams = await this.algorandService.getTransactionDefaultParameters();
 
-        const args = new AppArgs(ContractService.SET_LEVEL, ContractService.ENABLED);
-
-        const callTx = makeApplicationNoOpTxn(from, suggestedParams, asa.appID, args.parse(), [target]);
+        const callTx = makeApplicationNoOpTxn(from, suggestedParams, asa.appID, appArgs.parse(), [target]);
 
         return callTx;
     }
 
+    public async createCallAddToWhitelistTx(asaEntityID: number, from: string, target: string) {
+        const args = new AppArgs(ContractService.SET_LEVEL, ContractService.ENABLED);
+        return await this.createCallModifyWhitelistTx(asaEntityID, from, target, args);
+    }
+
     public async createCallRemoveFromWhitelistTx(asaEntityID: number, from: string, target: string) {
-        const asa = await this.asaRepository.findOneOrFail({ id: asaEntityID });
-        const suggestedParams = await this.algorandService.getTransactionDefaultParameters();
-
         const args = new AppArgs(ContractService.SET_LEVEL, ContractService.DISABLED);
-
-        const callTx = makeApplicationNoOpTxn(from, suggestedParams, asa.appID, args.parse(), [target]);
-
-        return callTx;
+        return await this.createCallModifyWhitelistTx(asaEntityID, from, target, args);
     }
 
     public static isSetLevelCall(arg: Uint8Array[]) {
