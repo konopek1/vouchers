@@ -411,7 +411,7 @@ declare module 'algosdk'
     export function makeKeyRegistrationTxnWithSuggestedParams(from: any, note: any, voteKey: any,
         selectionKey: any, voteFirst: any, voteLast: any, voteKeyDilution: any, suggestedParams: any): any;
 
-    export function makeLogicSig(program: Uint8Array, args: LogicSigArgs): LogicSig;
+    export function makeLogicSig(program: Uint8Array, args?: LogicSigArgs): LogicSig;
 
     export function makePaymentTxn(from: any, to: any, fee: any, amount: any, closeRemainderTo: any,
         firstRound: any, lastRound: any, note: any, genesisHash: any, genesisID: any): any;
