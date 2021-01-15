@@ -1,4 +1,3 @@
-import { func } from '@hapi/joi';
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { encodeUnsignedTransaction, Transaction } from 'algosdk';
 import { Observable } from 'rxjs';
@@ -13,12 +12,14 @@ export class TransactionSerializerInterceptor implements NestInterceptor {
   }
 }
 
-function encodeTx(value: Transaction): Array<number> {
+export function encodeTx(value: Transaction): Array<number> {
   return Array.from(encodeUnsignedTransaction(value));
 }
 
 function isTransaction(value: unknown) {
   return (
+    !!value
+    &&
     !!value['get_obj_for_encoding']
     &&
     typeof value['get_obj_for_encoding'] === 'function'
@@ -38,13 +39,13 @@ function serializeTransaction(value: any) {
   if (isTransaction(value)) {
     return {
       _serialize: 'Transaction',
-      value: encodeTx(value)
+      txn: encodeTx(value)
     };
   } 
   else if(isArrayOfTransactions(value)) {
     return {
       _serialize: 'Transactions',
-      value: value.map(encodeTx)
+      txn: value.map(encodeTx)
     }
   }
   return value;

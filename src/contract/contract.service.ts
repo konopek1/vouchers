@@ -1,21 +1,22 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { CompileOut, ConfirmedTxInfo, decodeSignedTransaction, makeApplicationCreateTxn, makeApplicationNoOpTxn, makeApplicationOptInTxn, TxSig } from "algosdk";
+import { CompileOut, ConfirmedTxInfo, decodeSignedTransaction, makeApplicationCreateTxn, makeApplicationNoOpTxn, makeApplicationOptInTxn, Transaction, TxSig } from "algosdk";
 import AlgorandService from "src/algorand/algorand.service";
 import { Asa } from "src/asa/asa.entity";
-import SignedTxDto from "src/asa/SignedTxDto";
+import SignedTxDto from "src/asa/SignedTx.dto";
 import FileReader from 'src/lib/FileReader';
-import { areArraysEqual } from "src/lib/Helpers";
+import { areArraysEqual, encodeCompiledTeal } from "src/lib/Helpers";
 import { Repository } from "typeorm";
 import { AppArg, AppArgs } from "./AppArgs";
-import OptInTxDto from "./OptInTxDto";
-import PoiContractDto from "./PoiContractDto";
+import OptInTxDto from "./OptInTx.dto";
+import PoiContractDto from "./PoiContract.dto";
 const parseTemplate = require("string-template");
 
 @Injectable()
 export class ContractService {
 
+    public static CHECK_LEVEL = "check-level"
     public static SET_LEVEL = "set-level";
     public static ENABLED = 1;
     public static DISABLED = 0;
@@ -48,8 +49,8 @@ export class ContractService {
             contractConfig.from,
             suggestedParams,
             contractConfig.onComplete,
-            Uint8Array.from(Buffer.from(compiledPoiApprovalTeal, "base64")),
-            Uint8Array.from(Buffer.from(compiledPoiClearTeal, "base64")),
+            encodeCompiledTeal(compiledPoiApprovalTeal),
+            encodeCompiledTeal(compiledPoiClearTeal),
             contractConfig.localInts,
             contractConfig.localBytesSlices,
             contractConfig.globalInts,
@@ -76,7 +77,7 @@ export class ContractService {
 
 
     // have to be signed with algosdk.tealSign
-    public async createEscrowTx(asaEntityID: number): Promise<CompileOut> {
+    public async compileEscrow(asaEntityID: number): Promise<CompileOut> {
         const asa = await this.asaRepository.findOneOrFail({ id: asaEntityID });
 
         const escrowTealTemplate = await this.fileReader.read(this.configService.get('CLAWBACK_ESCROW_TEAL'));
@@ -102,7 +103,7 @@ export class ContractService {
         return await this.algorandService.sendSignedTx(signedOptInTx);
     }
 
-    private async createCallModifyWhitelistTx(asaEntityID: number, from: string, target: string, appArgs: AppArgs) {
+    private async makeCallTx(asaEntityID: number, from: string, target: string, appArgs: AppArgs): Promise<Transaction> {
         const asa = await this.asaRepository.findOneOrFail({ id: asaEntityID });
         const suggestedParams = await this.algorandService.getTransactionDefaultParameters();
 
@@ -111,25 +112,31 @@ export class ContractService {
         return callTx;
     }
 
-    public async createCallAddToWhitelistTx(asaEntityID: number, from: string, target: string) {
+    public async createCallAddToWhitelistTx(asaEntityID: number, from: string, target: string): Promise<Transaction> {
         const args = new AppArgs(ContractService.SET_LEVEL, ContractService.ENABLED);
-        return await this.createCallModifyWhitelistTx(asaEntityID, from, target, args);
+        return await this.makeCallTx(asaEntityID, from, target, args);
     }
 
-    public async createCallRemoveFromWhitelistTx(asaEntityID: number, from: string, target: string) {
+    public async createCallRemoveFromWhitelistTx(asaEntityID: number, from: string, target: string): Promise<Transaction> {
         const args = new AppArgs(ContractService.SET_LEVEL, ContractService.DISABLED);
-        return await this.createCallModifyWhitelistTx(asaEntityID, from, target, args);
+        return await this.makeCallTx(asaEntityID, from, target, args);
     }
 
-    public static isSetLevelCall(arg: Uint8Array[]) {
+    public async makeCheckLevelCallTx(asaEntityID: number, from: string, target: string): Promise<Transaction> {
+        const args = new AppArgs(ContractService.CHECK_LEVEL);
+
+        return await this.makeCallTx(asaEntityID, from, target, args);
+    }
+
+    public static isSetLevelCall(arg: Uint8Array[]): boolean {
         return areArraysEqual(arg[ContractService.CALL_INDEX], AppArg(ContractService.SET_LEVEL));
     }
 
-    public static isEnableArg(arg: Uint8Array[]) {
+    public static isEnableArg(arg: Uint8Array[]): boolean {
         return areArraysEqual(arg[ContractService.LEVEL_INDEX], AppArg(ContractService.ENABLED));
     }
 
-    public static isDisableArg(arg: Uint8Array[]) {
+    public static isDisableArg(arg: Uint8Array[]): boolean {
         return areArraysEqual(arg[ContractService.LEVEL_INDEX], AppArg(ContractService.DISABLED));
     }
 }

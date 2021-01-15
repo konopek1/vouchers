@@ -1,10 +1,10 @@
 import { Controller, Post, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import SignedTxDto from "src/asa/SignedTx.dto";
-import AsaTransferTxDto from "./AsaTransferTxDto";
+import AsaTransferTxDto from "./AsaTransferTx.dto";
 import { PaymentService } from "./payment.service";
-import PaymentTxDto from "./PaymentTxDto";
-import SendAsaDto from "./SendAsaDto";
+import PaymentTxDto from "./PaymentTx.dto";
+import SendAsaDto from "./SendAsa.dto";
 
 @Controller('payment')
 export class PaymentController {

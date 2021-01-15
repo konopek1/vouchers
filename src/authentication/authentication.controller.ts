@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Post, Req, UseGuards } from "@nestjs/c
 import { AuthGuard } from "@nestjs/passport";
 import { Request } from "express";
 import { AuthenticationService } from "./authentication.service";
-import RegisterDto from "./RegisterDto";
+import RegisterDto from "./Register.dto";
 import RequestWithUser from "./RequestWithUser";
 
 @Controller('auth')

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as algosdk from 'algosdk';
-import { ConfirmedTxInfo, encodeAddress, Transaction, TxSig } from "algosdk";
+import { encodeAddress, Transaction, TxSig } from "algosdk";
 import AlgorandService from "src/algorand/algorand.service";
 import { ContractService } from "src/contract/contract.service";
 import User from "src/user/user.entity";
@@ -9,9 +9,10 @@ import { UserService } from "src/user/user.service";
 import { WalletService } from "src/wallet/wallet.service";
 import { Repository } from "typeorm";
 import { Asa } from "./asa.entity";
-import AssetConfigDto from "./AssetConfigDto";
-import SignedTxDto from "./SignedTxDto";
-import UpdateAsaDto from "./UpdateAsaDto";
+import AssetConfigDto from "./AssetConfig.dto";
+import SignedTxDto from "./SignedTx.dto";
+import UpdateAsaDto from "./UpdateAsa.dto";
+import { EMPTY_NOTE } from "src/lib/Constants";
 
 @Injectable()
 export class AsaService {

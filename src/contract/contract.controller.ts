@@ -1,11 +1,11 @@
 import { Body, Controller, Post, UseGuards, UseInterceptors } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
-import SignedTxDto from "src/asa/SignedTxDto";
+import SignedTxDto from "src/asa/SignedTx.dto";
 import { TransactionSerializerInterceptor } from "src/lib/TransactionSerializerInterceptor";
 import { ContractService } from "./contract.service";
-import EscrowTxDto from "./EscrowTxDto";
-import OptInTxDto from "./OptInTxDto";
-import PoiContractDto from "./PoiContractDto";
+import EscrowTxDto from "./EscrowTx.dto";
+import OptInTxDto from "./OptInTx.dto";
+import PoiContractDto from "./PoiContract.dto";
 
 @UseInterceptors(TransactionSerializerInterceptor)
 @Controller('contract')
@@ -32,7 +32,7 @@ export class ContractController {
     @Post('escrowTx')
     public async createEscrowTx(@Body() escrowTxDto: EscrowTxDto) {
 
-        return await this.contractService.createEscrowTx(escrowTxDto.asaEntityID);
+        return await this.contractService.compileEscrow(escrowTxDto.asaEntityID);
     }
 
     @UseGuards(AuthGuard('jwt'))

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AlgorandModule } from './algorand/algorand.module';
 import { AsaModule } from './asa/asa.module';
 import { DatabaseModule } from './database/database.module';
+import { PaymentModule } from './payment/payment.module';
 const Joi = require('@hapi/joi');
 
 
@@ -24,7 +25,7 @@ const validationSchema = Joi.object({
 });
 
 @Module({
-  imports: [AlgorandModule, ConfigModule.forRoot({validationSchema}), DatabaseModule, AsaModule],
+  imports: [AlgorandModule, ConfigModule.forRoot({validationSchema}), DatabaseModule, AsaModule, PaymentModule],
   controllers: [],
   providers: [],
 })

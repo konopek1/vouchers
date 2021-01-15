@@ -2,10 +2,10 @@ import { Body, Controller, Post, Put, UseGuards, UseInterceptors } from "@nestjs
 import { AuthGuard } from "@nestjs/passport";
 import { TransactionSerializerInterceptor } from "src/lib/TransactionSerializerInterceptor";
 import { AsaService } from "./asa.service";
-import AssetConfigDto from "./AssetConfigDto";
-import SignedTxDto from "./SignedTxDto";
-import UpdateAsaDto from "./UpdateAsaDto";
-import WhiteListTxDto from "./WhiteListTxDto";
+import AssetConfigDto from "./AssetConfig.dto";
+import SignedTxDto from "./SignedTx.dto";
+import UpdateAsaDto from "./UpdateAsa.dto";
+import WhiteListTxDto from "./WhitelistTx.dto";
 
 @UseInterceptors(TransactionSerializerInterceptor)
 @Controller('asa')

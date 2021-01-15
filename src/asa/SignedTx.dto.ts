@@ -1,6 +1,7 @@
 import { IsString, Length } from "class-validator";
 import { SignedTx } from "src/algorand/algosdk.types";
 import { Transform } from "class-transformer";
+import { jsonEncodedUint8ArrayToUint8Array } from "src/lib/Helpers";
 
 export default class SignedTxDto implements SignedTx {
     @IsString()
@@ -11,12 +12,3 @@ export default class SignedTxDto implements SignedTx {
     blob: Uint8Array;
 }
 
-function jsonEncodedUint8ArrayToUint8Array(jsonUint8Array: Object) {
-    const arr = new Uint8Array(Object.keys(jsonUint8Array).length);
-
-    Object.entries(jsonUint8Array).map(([key, value]) => {
-        arr[Number(key)] = value;
-    });
-
-    return arr;
-}

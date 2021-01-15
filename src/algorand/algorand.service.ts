@@ -13,13 +13,29 @@ export default class AlgorandService {
 
   async sendSignedTx(signedTx: TxSig): Promise<ConfirmedTxInfo> {
     let rv;
-    
+
     try {
       await this.algorandClient.client.sendRawTransaction(signedTx.blob).do();
 
       rv = await this.algorandClient.waitForConfirmation(signedTx.txID);
     }
     catch (e) {
+      throw new HttpException(`Transaction submission error: ${e.response.body.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    return rv;
+  }
+
+  async sendSignedTxs(signedTxs: TxSig[]): Promise<ConfirmedTxInfo> {
+    let rv;
+
+    const blobs = signedTxs.map(sigTx => sigTx.blob);
+
+    try {
+      const txID = (await this.algorandClient.client.sendRawTransaction(blobs).do()).txId;
+
+      rv = await this.algorandClient.waitForConfirmation(txID);
+    } catch (e) {
       throw new HttpException(`Transaction submission error: ${e.response.body.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

@@ -7,9 +7,9 @@ import SignedTxDto from "src/asa/SignedTx.dto";
 import { ContractService } from "src/contract/contract.service";
 import { encodeCompiledTeal } from "src/lib/Helpers";
 import { Repository } from "typeorm";
-import AsaTransferTxDto from "./AsaTransferTxDto";
+import AsaTransferTxDto from "./AsaTransferTx.dto";
 import AtomicAsaTx, { SerializedAtomicAsaTx } from "./AtomicAsaTx";
-import SendAsaDto from "./SendAsaDto";
+import SendAsaDto from "./SendAsa.dto";
 import { EMPTY_NOTE } from "src/lib/Constants";
 
 //TODO consider renaming all create*Tx to make*Tx 
