@@ -536,7 +536,7 @@ declare module 'algosdk'
     }
 
     export interface ParsedAddress {
-        publicKey: string;
+        publicKey: Uint8Array;
     }
 
     export interface Address {
