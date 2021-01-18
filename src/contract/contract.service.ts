@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
+import { decode } from "algo-msgpack-with-bigint";
 import { CompileOut, ConfirmedTxInfo, decodeSignedTransaction, makeApplicationCreateTxn, makeApplicationNoOpTxn, makeApplicationOptInTxn, Transaction, TxSig } from "algosdk";
 import AlgorandService from "src/algorand/algorand.service";
 import { Asa } from "src/asa/asa.entity";
@@ -8,7 +9,7 @@ import SignedTxDto from "src/asa/SignedTx.dto";
 import FileReader from 'src/lib/FileReader';
 import { areArraysEqual, encodeCompiledTeal } from "src/lib/Helpers";
 import { Repository } from "typeorm";
-import { AppArg, AppArgs } from "./AppArgs";
+import { AppArg, AppArgs, argToUint64 } from "./AppArgs";
 import OptInTxDto from "./OptInTx.dto";
 import PoiContractDto from "./PoiContract.dto";
 const parseTemplate = require("string-template");
@@ -43,7 +44,7 @@ export class ContractService {
 
         const asa = await this.asaRepository.findOneOrFail({ id: contractConfig.asaEntityID })
 
-        const args = new AppArgs(asa.asaID.toString(), ContractService.ENABLED);
+        const args = new AppArgs(asa.asaID, ContractService.ENABLED);
 
         return makeApplicationCreateTxn(
             contractConfig.from,
@@ -62,7 +63,7 @@ export class ContractService {
 
     public async createPoiContract(signedPoiTx: TxSig): Promise<ConfirmedTxInfo> {
         const decodedTx = decodeSignedTransaction(signedPoiTx.blob).txn;
-        const algoAsaID = Number(Buffer.from(decodedTx.appArgs[ContractService.ASA_INDEX]));
+        const algoAsaID = Number(argToUint64(decodedTx.appArgs[ContractService.ASA_INDEX]));
 
         const confirmedTx = await this.algorandService.sendSignedTx(signedPoiTx);
 

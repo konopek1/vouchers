@@ -12,5 +12,5 @@ export default class SendAsaDto {
     paymentSigTx: TxSig;
     
     @Transform(blob => decodeUnsignedTransaction(jsonEncodedUint8ArrayToUint8Array(blob)))
-    asaTransferSigTx: Transaction;
+    asaTransferTx: Transaction;
 }

@@ -67,8 +67,8 @@ export class AsaService {
             assetUrl: decodedAsaTx.assetURL,
             name: decodedAsaTx.assetName,
             unitName: decodedAsaTx.assetUnitName,
-            manager: decodedAsaTx.assetManager.publicKey,
-            clawback: decodedAsaTx.assetClawback.publicKey,
+            manager: encodeAddress(decodedAsaTx.assetManager.publicKey),
+            clawback: encodeAddress(decodedAsaTx.assetClawback.publicKey),
         })
 
         return await this.asaRepository.save(newAsa);
@@ -95,15 +95,14 @@ export class AsaService {
 
         return updateAsaTx;
     }
-
+    //TODO hardcoded only for updating clawback should be changed
     public async updateAsa(signedUpdateAsaTx: SignedTxDto): Promise<Asa> {
         const decodedTx = algosdk.decodeSignedTransaction(signedUpdateAsaTx.blob).txn;
         const asaID = decodedTx.assetIndex;
         const asa = await this.asaRepository.findOneOrFail({ asaID });
 
         const confirmedTx = await this.algorandService.sendSignedTx(signedUpdateAsaTx);
-        //TODO hardcoded only for updating clawback should be changed
-        asa.clawback = decodedTx.assetClawback.publicKey;
+        asa.clawback = encodeAddress(decodedTx.assetClawback.publicKey);
 
         await this.asaRepository.save(asa);
 

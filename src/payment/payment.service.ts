@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ConfirmedTxInfo, makeAssetTransferTxnWithSuggestedParams, makeLogicSig, makePaymentTxnWithSuggestedParams, signLogicSigTransaction, Transaction } from "algosdk";
+import { ConfirmedTxInfo, makeAssetTransferTxnWithSuggestedParams, makeLogicSig, makePaymentTxnWithSuggestedParams, mnemonicToSecretKey, signLogicSigTransaction, signLogicSigTransactionObject, Transaction } from "algosdk";
 import AlgorandService from "src/algorand/algorand.service";
 import { Asa } from "src/asa/asa.entity";
 import SignedTxDto from "src/asa/SignedTx.dto";
@@ -10,7 +10,7 @@ import { Repository } from "typeorm";
 import AsaTransferTxDto from "./AsaTransferTx.dto";
 import AtomicAsaTx, { SerializedAtomicAsaTx } from "./AtomicAsaTx";
 import SendAsaDto from "./SendAsa.dto";
-import { EMPTY_NOTE } from "src/lib/Constants";
+import { EMPTY_NOTE, ZERO_ADDRESS } from "src/lib/Constants";
 
 //TODO consider renaming all create*Tx to make*Tx 
 @Injectable()
@@ -32,7 +32,7 @@ export class PaymentService {
             from,
             to,
             amount,
-            to,
+            ZERO_ADDRESS,
             EMPTY_NOTE,
             suggestedParams
         );
@@ -53,13 +53,13 @@ export class PaymentService {
 
         const checkLevelCallTx = await this.contractService.makeCheckLevelCallTx(asa.id, asaTransferDto.from, asaTransferDto.to);
 
-        const paymentTx = await this.makeTransferTx(asaTransferDto.from, asa.clawback, asaTransferDto.amount);
+        const paymentTx = await this.makeTransferTx(asaTransferDto.from, asa.clawback, 1000);
 
         const assetTransferCallTx = makeAssetTransferTxnWithSuggestedParams(
-            asaTransferDto.from,
-            asaTransferDto.from,
-            asaTransferDto.to,
             asa.clawback,
+            asaTransferDto.to,
+            ZERO_ADDRESS,
+            asaTransferDto.from,
             asaTransferDto.amount,
             EMPTY_NOTE,
             asa.asaID,
@@ -79,14 +79,18 @@ export class PaymentService {
     async sendAsaTransfer(txs: SendAsaDto) {
         const signedCheckLevelTx = txs.checkLevelSigTx;
         const signedPaymentTx = txs.paymentSigTx;
-        const unSignedTransferAsaTx = txs.asaTransferSigTx;
+        const unSignedTransferAsaTx = txs.asaTransferTx;
 
-        const asaEntityID = unSignedTransferAsaTx.assetIndex;
-        const asa = await this.asaRepository.findOneOrFail({ id: asaEntityID });
+        const algorandAsaID = unSignedTransferAsaTx.assetIndex;
+        const asa = await this.asaRepository.findOneOrFail({ asaID: algorandAsaID });
+
+        const user = mnemonicToSecretKey('garden crash stand taxi easy remind solar dad frown fever guess rotate shaft olympic diet glimpse hockey rude govern glide repair when random absorb plate');
+
 
         const escrow = (await this.contractService.compileEscrow(asa.id)).result;
         const logicSigEscrow = makeLogicSig(encodeCompiledTeal(escrow));
-        const signedTransferTx = signLogicSigTransaction(unSignedTransferAsaTx, logicSigEscrow);
+        console.log(logicSigEscrow.address())
+        const signedTransferTx = signLogicSigTransactionObject(unSignedTransferAsaTx, logicSigEscrow);
 
         const signedGroupedTxs = AtomicAsaTx.groupSignedTxs(signedCheckLevelTx, signedTransferTx, signedPaymentTx);
 
