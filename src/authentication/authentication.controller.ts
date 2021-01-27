@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { Request } from "express";
+import User from "src/user/user.entity";
 import { AuthenticationService } from "./authentication.service";
 import RegisterDto from "./Register.dto";
 import RequestWithUser from "./RequestWithUser";
@@ -12,8 +13,8 @@ export class AuthenticationController {
     ) {}
 
     @Post('register')
-    async register(@Body() registrationData: RegisterDto) {
-        return this.authenticationService.register(registrationData);
+    async register(@Body() registrationData: RegisterDto): Promise<User> {
+        return await this.authenticationService.register(registrationData);
     }
 
     @UseGuards(AuthGuard('local'))
