@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import User from "src/user/user.entity";
 import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -6,6 +7,7 @@ export class Asa {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Exclude()
     @Column()
     asaID: number;
 
@@ -24,6 +26,7 @@ export class Asa {
     @Column()
     clawback: string;
 
+    @Exclude()
     @Column()
     manager: string;
 

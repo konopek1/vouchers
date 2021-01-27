@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { Asa } from "src/asa/asa.entity";
 import Comparable from "src/lib/Comparable";
 import Wallet from "src/wallet/wallet.entity";
@@ -11,6 +12,7 @@ export default class User implements Comparable<User> {
     @Column({unique: true})
     public email: string;
 
+    @Exclude()
     @Column()
     public password: string;
 

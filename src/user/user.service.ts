@@ -19,11 +19,11 @@ export class UserService {
     }
 
     async getByEmail(email: string) {
-        return await this.userRepository.findOneOrFail({ email });
+        return await this.userRepository.findOneOrFail({ email }, { relations: ['wallets'] });
     }
 
     async getById(id: number) {
-        return await this.userRepository.findOneOrFail({ id });
+        return await this.userRepository.findOneOrFail({ id }, { relations: ['wallets'] });
     }
 
     async getUsersByEmails(emails: string[]) {
@@ -36,4 +36,5 @@ export class UserService {
             }
         );
     }
+ł
 }
