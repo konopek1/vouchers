@@ -34,6 +34,11 @@ export class AsaService {
         return await this.asaRepository.findOneOrFail({ appID });
     }
 
+    async getAll() {
+        return await this.asaRepository.find();
+    }
+
+
     async createAsaTx(assetConfig: AssetConfigDto): Promise<Transaction> {
         const defaultParameters = await this.algorandService.getTransactionDefaultParameters();
         const asa = algosdk.makeAssetCreateTxnWithSuggestedParams(

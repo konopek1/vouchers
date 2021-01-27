@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Put, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Post, Put, UseGuards, UseInterceptors } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { TransactionSerializerInterceptor } from "src/lib/TransactionSerializerInterceptor";
 import { AsaService } from "./asa.service";
@@ -48,14 +48,19 @@ export class AsaController {
     @UseGuards(AuthGuard('jwt'))
     @Post('/removeFromWhitelistTxs')
     public async removeFromWhitelistTxs(@Body() whiteListTxDto: WhiteListTxDto) {
-
         return await this.asaService.createRemoveUsersFromWhitelistTxs(whiteListTxDto.emails, whiteListTxDto.asaEntityID, whiteListTxDto.from);
     }
 
     @UseGuards(AuthGuard('jwt'))
     @Put('/updateWhitelist')
     public async updateWhitelist(@Body() signedTxDto: SignedTxDto) {
-
         return await this.asaService.modifyWhitelist(signedTxDto);
     }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Get('')
+    public async getAll() {
+        return await this.asaService.getAll();
+    }
+
 }
