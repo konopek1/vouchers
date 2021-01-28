@@ -33,7 +33,7 @@ export class Asa {
     @Column({default: false})
     valid: boolean;
 
-    @ManyToMany(() => User, {eager: true})
+    @ManyToMany(() => User)
     @JoinTable()
     whitelist: User[];
 }

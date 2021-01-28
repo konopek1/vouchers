@@ -50,8 +50,6 @@ export class AuthenticationService {
             const user = await this.userService.getByEmail(email);
 
             await this.verifyPassword(plainPassword, user.password);
-
-            user.password = undefined;
             
             return user;
         } catch(error) {
