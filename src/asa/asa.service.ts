@@ -4,15 +4,16 @@ import * as algosdk from 'algosdk';
 import { encodeAddress, Transaction, TxSig } from "algosdk";
 import AlgorandService from "src/algorand/algorand.service";
 import { ContractService } from "src/contract/contract.service";
+import { EMPTY_NOTE } from "src/lib/Constants";
 import User from "src/user/user.entity";
 import { UserService } from "src/user/user.service";
 import { WalletService } from "src/wallet/wallet.service";
 import { Repository } from "typeorm";
 import { Asa } from "./asa.entity";
 import AssetConfigDto from "./AssetConfig.dto";
+import { OwnedByUserAsasDto } from "./OwnedByUser.dto";
 import SignedTxDto from "./SignedTx.dto";
 import UpdateAsaDto from "./UpdateAsa.dto";
-import { EMPTY_NOTE } from "src/lib/Constants";
 
 @Injectable()
 export class AsaService {
@@ -27,17 +28,28 @@ export class AsaService {
     }
 
     async getByIDOrFail(id: number) {
-        return await this.asaRepository.findOneOrFail(id);
+        return await this.asaRepository.findOneOrFail(id, { relations: ['whitelist'] });
     }
 
     async getByAppIDOrFail(appID: number) {
-        return await this.asaRepository.findOneOrFail({ appID });
+        return await this.asaRepository.findOneOrFail({ where: { appID }, relations: ['whitelist'] });
     }
 
     async getAll() {
         return await this.asaRepository.find();
     }
 
+    async getOwnedByUser(userID: number): Promise<OwnedByUserAsasDto> {
+        const ownedByUser = await this.walletService.getOwnedByUser(userID);
+
+        const allAsa = await this.getAll();
+
+        const allAsaWithoutOwnedByUser = allAsa.filter(asa => ownedByUser.some(
+            secondAsa => secondAsa.id !== asa.id
+        ));
+
+        return new OwnedByUserAsasDto(ownedByUser, allAsaWithoutOwnedByUser);
+    }
 
     async createAsaTx(assetConfig: AssetConfigDto): Promise<Transaction> {
         const defaultParameters = await this.algorandService.getTransactionDefaultParameters();

@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Post, Put, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Post, Put, Req, UseGuards, UseInterceptors } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
+import RequestWithUser from "src/authentication/RequestWithUser";
 import { TransactionSerializerInterceptor } from "src/lib/TransactionSerializerInterceptor";
 import { AsaService } from "./asa.service";
 import AssetConfigDto from "./AssetConfig.dto";
@@ -13,6 +14,13 @@ export class AsaController {
     constructor(
         private readonly asaService: AsaService,
     ) { }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Get()
+    public async userAssets(@Req() request: RequestWithUser) {
+        const userID = request.user.id;
+        return await this.asaService.getOwnedByUser(userID);
+    }
 
     @UseGuards(AuthGuard('jwt'))
     @Post('/createTx')
@@ -55,12 +63,6 @@ export class AsaController {
     @Put('/updateWhitelist')
     public async updateWhitelist(@Body() signedTxDto: SignedTxDto) {
         return await this.asaService.modifyWhitelist(signedTxDto);
-    }
-
-    @UseGuards(AuthGuard('jwt'))
-    @Get('')
-    public async getAll() {
-        return await this.asaService.getAll();
     }
 
 }
