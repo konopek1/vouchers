@@ -242,32 +242,34 @@ gtxn 1 Fee
 bz failed
 
 
+
 // now handle the level check
 
 // if sender have second level he can transact to anyone
 int 0 //sender
 gtxn 0 ApplicationID
 byte "Accred-Level"
-app_local_get_ex
+app_local_get_ex// params -  account index, application id, state key.
 // top of the stack has the current user level
 // load asset required level
 int 2
 ==
-bnz success
 
 // get asset receiver stored accredidation level
 int 1 //asset receiver account
-txn ApplicationID
+gtxn 0 ApplicationID
 byte "Accred-Level"
-app_local_get_ex
-bz failed // must have an accred level set
+app_local_get_ex// params -  account index, application id, state key.
+
 // top of the stack has the current user level
 // load asset required level
 int 1
->=
+==
+
+||
+
 bz failed // users level not high enough
 
-success:
 int 1
 return
 handle_optin:
