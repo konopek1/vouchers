@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { decode } from "algo-msgpack-with-bigint";
-import { CompileOut, ConfirmedTxInfo, decodeSignedTransaction, makeApplicationCreateTxn, makeApplicationNoOpTxn, makeApplicationOptInTxn, Transaction, TxSig } from "algosdk";
+import { CompileOut, ConfirmedTxInfo, decodeSignedTransaction, makeApplicationCreateTxn, makeApplicationNoOpTxn, makeApplicationOptInTxn, makeLogicSig, makePaymentTxnWithSuggestedParams, mnemonicToSecretKey, signTransaction, Transaction, TxSig } from "algosdk";
 import AlgorandService from "src/algorand/algorand.service";
 import { Asa } from "src/asa/asa.entity";
 import SignedTxDto from "src/asa/SignedTx.dto";
+import { EMPTY_NOTE, ESCROW_SUPPLY, ZERO_ADDRESS } from "src/lib/Constants";
 import FileReader from 'src/lib/FileReader';
 import { areArraysEqual, encodeCompiledTeal } from "src/lib/Helpers";
 import { Repository } from "typeorm";
@@ -19,8 +19,10 @@ export class ContractService {
 
     public static CHECK_LEVEL = "check-level"
     public static SET_LEVEL = "set-level";
+    public static SUPPLIER = 2;
     public static ENABLED = 1;
     public static DISABLED = 0;
+    public static USER = 0;
     public static CALL_INDEX = 0;
     public static ASA_INDEX = 0;
     public static LEVEL_INDEX = 1;
@@ -30,7 +32,7 @@ export class ContractService {
         @InjectRepository(Asa)
         private readonly asaRepository: Repository<Asa>,
         private readonly fileReader: FileReader,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
     ) { }
 
     public async createPoiContractTx(contractConfig: PoiContractDto): Promise<CompileOut> {
@@ -77,7 +79,6 @@ export class ContractService {
     }
 
 
-    // have to be signed with algosdk.tealSign
     public async compileEscrow(asaEntityID: number): Promise<CompileOut> {
         const asa = await this.asaRepository.findOneOrFail({ id: asaEntityID });
 
@@ -88,7 +89,34 @@ export class ContractService {
             appID: asa.appID
         });
 
-        return await this.algorandService.compile(escrowTeal);
+        const compiledEscrow = await this.algorandService.compile(escrowTeal);
+
+        await this.fundEscrow(compiledEscrow.result);
+
+        return compiledEscrow;
+    }
+
+    private async fundEscrow(compiledEscrow: string): Promise<void> {
+        const escrowAddress = makeLogicSig(encodeCompiledTeal(compiledEscrow)).address();
+
+        const supplierMnemonic = await this.configService.get('SUPPLIER_MNEMONIC');
+
+        const { addr, sk } = mnemonicToSecretKey(supplierMnemonic);        
+    
+        const suggestedParams = await this.algorandService.getTransactionDefaultParameters();
+
+        const fundEscrowTx = makePaymentTxnWithSuggestedParams(
+            addr,
+            escrowAddress,
+            ESCROW_SUPPLY,
+            ZERO_ADDRESS,
+            EMPTY_NOTE,
+            suggestedParams
+        );
+
+        const signedFundEscrowTx = signTransaction(fundEscrowTx, sk);
+
+        await this.algorandService.sendSignedTx(signedFundEscrowTx);
     }
 
     public async createOptInContractTx(optInTxDto: OptInTxDto) {
@@ -120,6 +148,16 @@ export class ContractService {
 
     public async createCallRemoveFromWhitelistTx(asaEntityID: number, from: string, target: string): Promise<Transaction> {
         const args = new AppArgs(ContractService.SET_LEVEL, ContractService.DISABLED);
+        return await this.makeCallTx(asaEntityID, from, target, args);
+    }
+
+    public async createCallAddUserTx(asaEntityID: number, from: string, target: string): Promise<Transaction> {
+        const args = new AppArgs(ContractService.SET_LEVEL, ContractService.USER);
+        return await this.makeCallTx(asaEntityID, from, target, args);
+    }
+
+    public async createCallAddSupplierTx(asaEntityID: number, from: string, target: string): Promise<Transaction> {
+        const args = new AppArgs(ContractService.SET_LEVEL, ContractService.SUPPLIER);
         return await this.makeCallTx(asaEntityID, from, target, args);
     }
 

@@ -4,6 +4,8 @@ import { AlgorandModule } from './algorand/algorand.module';
 import { AsaModule } from './asa/asa.module';
 import { DatabaseModule } from './database/database.module';
 import { PaymentModule } from './payment/payment.module';
+import { ParticipationModule } from './participation/participation.module';
+import WalletModule from './wallet/wallet.module';
 const Joi = require('@hapi/joi');
 
 
@@ -19,14 +21,16 @@ const validationSchema = Joi.object({
   ALGORAND_PORT: Joi.number().required(),
   JWT_SECRET: Joi.string().required(),
   JWT_EXPIRATION_TIME: Joi.string().required(),
-  CLAWBACK_ESCROW_TEAL: Joi.string().required(), 
+  CLAWBACK_ESCROW_TEAL: Joi.string().required(),
   POI_TEAL: Joi.string().required(),
-  POI_CLEAR_TEAL: Joi.string().required()
+  POI_CLEAR_TEAL: Joi.string().required(),
+  USER_APP_URL: Joi.string().required(),
+  ADMIN_APP_URL: Joi.string().required()
 });
 
 @Module({
-  imports: [AlgorandModule, ConfigModule.forRoot({validationSchema}), DatabaseModule, AsaModule, PaymentModule],
+  imports: [AlgorandModule, ConfigModule.forRoot({ validationSchema }), DatabaseModule, AsaModule, PaymentModule, WalletModule, ParticipationModule],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }
