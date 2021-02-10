@@ -4,11 +4,12 @@ import * as algosdk from 'algosdk';
 import { encodeAddress, Transaction, TxSig } from "algosdk";
 import AlgorandService from "src/algorand/algorand.service";
 import { ContractService } from "src/contract/contract.service";
-import { EMPTY_NOTE } from "src/lib/Constants";
+import OptInTxDto from "src/contract/OptInTx.dto";
+import { EMPTY_NOTE, ZERO_ADDRESS } from "src/lib/Constants";
 import User from "src/user/user.entity";
 import { UserService } from "src/user/user.service";
 import { WalletService } from "src/wallet/wallet.service";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { Asa } from "./asa.entity";
 import AssetConfigDto from "./AssetConfig.dto";
 import { OwnedByUserAsasDto } from "./OwnedByUser.dto";
@@ -39,13 +40,21 @@ export class AsaService {
         return await this.asaRepository.find();
     }
 
+    async getByManager(managerID: number): Promise<Asa[]> {
+        const managerWallets = await this.walletService.getOwnedByUser(managerID);
+        
+        return await this.asaRepository.find({where: {
+            manager: In(managerWallets.map(w => w.publicKey))
+        }});
+    }
+
     async getOwnedByUser(userID: number): Promise<OwnedByUserAsasDto> {
-        const ownedByUser = await this.walletService.getOwnedByUser(userID);
+        const ownedByUser = (await this.walletService.getOwnedByUser(userID)).map(w => w.asa);
 
-        const allAsa = await this.getAll();
+        const allAsa =  await this.getAll();
 
-        const allAsaWithoutOwnedByUser = allAsa.filter(asa => ownedByUser.some(
-            secondAsa => secondAsa.id !== asa.id
+        const allAsaWithoutOwnedByUser = allAsa.filter(asa => !ownedByUser.some(
+            secondAsa => secondAsa.id === asa.id
         ));
 
         return new OwnedByUserAsasDto(ownedByUser, allAsaWithoutOwnedByUser);
@@ -202,6 +211,25 @@ export class AsaService {
         } else {
             throw new HttpException("Wrong app arg, first argument should be set level", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    public async makeOptInTx(optInTxDto: OptInTxDto): Promise<Transaction> {
+        const suggestedParams = await this.algorandService.getTransactionDefaultParameters();
+
+        const asa = await this.asaRepository.findOneOrFail({id: optInTxDto.entityAsaID});
+
+        const assetTransferCallTx = algosdk.makeAssetTransferTxnWithSuggestedParams(
+            optInTxDto.address,
+            optInTxDto.address,
+            ZERO_ADDRESS,
+            ZERO_ADDRESS,
+            0,
+            EMPTY_NOTE,
+            asa.asaID,
+            suggestedParams
+        );
+
+        return assetTransferCallTx;
     }
 
     //TODO: add validate action which check if asa is set-up properly and set its status in db

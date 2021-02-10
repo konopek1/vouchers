@@ -1,7 +1,10 @@
-import { Body, Controller, Get, Post, Put, Req, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Put, Req, UseGuards, UseInterceptors } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
+import { Transaction } from "algosdk";
 import RequestWithUser from "src/authentication/RequestWithUser";
+import OptInTxDto from "src/contract/OptInTx.dto";
 import { TransactionSerializerInterceptor } from "src/lib/TransactionSerializerInterceptor";
+import User from "src/user/user.entity";
 import { AsaService } from "./asa.service";
 import AssetConfigDto from "./AssetConfig.dto";
 import SignedTxDto from "./SignedTx.dto";
@@ -20,6 +23,13 @@ export class AsaController {
     public async userAssets(@Req() request: RequestWithUser) {
         const userID = request.user.id;
         return await this.asaService.getOwnedByUser(userID);
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Get('/managed')
+    public async managedAssets(@Req() request: RequestWithUser) {
+        const userID = request.user.id; 
+        return await this.asaService.getByManager(userID);
     }
 
     @UseGuards(AuthGuard('jwt'))
@@ -65,4 +75,14 @@ export class AsaController {
         return await this.asaService.modifyWhitelist(signedTxDto);
     }
 
+    @UseGuards(AuthGuard('jwt'))
+    @Get('/:id/whitelist')
+    public async getWhitelist(@Param('id') id: number): Promise<User[]> {
+        return (await this.asaService.getByIDOrFail(id)).whitelist;
+    }
+
+    @Post('/optInTx')
+    public async makeOptInTx(@Body() optInTxDto :OptInTxDto): Promise<Transaction> {
+        return await this.asaService.makeOptInTx(optInTxDto);
+    }
 }

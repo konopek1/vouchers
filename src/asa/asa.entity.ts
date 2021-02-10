@@ -8,7 +8,7 @@ export class Asa {
     id: number;
 
     @Exclude()
-    @Column()
+    @Column({unique: true})
     asaID: number;
 
     @Column()
@@ -17,7 +17,7 @@ export class Asa {
     @Column()
     unitName: string;
 
-    @Column({nullable: true})
+    @Column({nullable: true, unique: true})
     appID: number;
     
     @Column({nullable: true})
