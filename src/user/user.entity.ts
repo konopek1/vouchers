@@ -13,7 +13,7 @@ export default class User implements Comparable<User> {
     public email: string;
 
     @Exclude()
-    @Column()
+    @Column({select: false})
     public password: string;
 
     @ManyToMany(() => Asa)
