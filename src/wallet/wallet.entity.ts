@@ -1,7 +1,9 @@
 import { Asa } from "src/asa/asa.entity";
 import User from "src/user/user.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { WalletState } from "./WalletState";
 
+@Unique(["owner","asa"])
 @Entity()
 export default class Wallet {
 
@@ -14,16 +16,16 @@ export default class Wallet {
     @Column()
     encryptedPrivateKey: string;
 
-    @ManyToOne(() => Asa, {eager: true})
+    @ManyToOne(() => Asa, { eager: true })
     asa: Asa
 
-    @ManyToOne(() => User, (user: User) => user.wallets, { eager: true})
+    @ManyToOne(() => User, (user: User) => user.wallets, { eager: true })
     owner: User;
 
-    @Column({
-        type: 'jsonb',
-        nullable: true
-    })
+    @Column({ default: WalletState.NOT_APPROVED })
+    approvalState: number
+
+    @Column({ type: 'jsonb' })
     metadata: Metadata;
 }
 
@@ -31,3 +33,4 @@ export interface Metadata {
     iterations: number;
     nonce: string;
 }
+
