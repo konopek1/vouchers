@@ -250,6 +250,7 @@ int 0 //sender
 gtxn 0 ApplicationID
 byte "Accred-Level"
 app_local_get_ex// params -  account index, application id, state key.
+bz failed
 // top of the stack has the current user level
 // load asset required level
 int 2
@@ -257,10 +258,10 @@ int 2
 
 // get asset receiver stored accredidation level
 int 1 //asset receiver account
-gtxn 0 ApplicationID
+txn ApplicationID
 byte "Accred-Level"
 app_local_get_ex// params -  account index, application id, state key.
-
+bz failed
 // top of the stack has the current user level
 // load asset required level
 int 1
