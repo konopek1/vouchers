@@ -20,7 +20,12 @@ export default class AlgorandService {
       rv = await this.algorandClient.waitForConfirmation(signedTx.txID);
     }
     catch (e) {
-      throw new HttpException(`Transaction submission error: ${e.response.body.message}`, HttpStatus.BAD_REQUEST);
+      if(e.response) {
+        throw new HttpException(`Transaction submission error: ${e.response.body.message}`, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        
+      }
     }
 
     return rv;

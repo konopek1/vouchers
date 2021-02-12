@@ -8,6 +8,8 @@ import User from "src/user/user.entity";
 import { AsaService } from "./asa.service";
 import AssetConfigDto from "./AssetConfig.dto";
 import SignedTxDto from "./SignedTx.dto";
+import { SupplierTx } from "./SupplierTx";
+import { SupplierDto } from "./Suppplier.dto";
 import UpdateAsaDto from "./UpdateAsa.dto";
 import WhiteListTxDto from "./WhitelistTx.dto";
 
@@ -28,7 +30,7 @@ export class AsaController {
     @UseGuards(AuthGuard('jwt'))
     @Get('/managed')
     public async managedAssets(@Req() request: RequestWithUser) {
-        const userID = request.user.id; 
+        const userID = request.user.id;
         return await this.asaService.getByManager(userID);
     }
 
@@ -59,7 +61,7 @@ export class AsaController {
     @UseGuards(AuthGuard('jwt'))
     @Post('/addToWhitelistTxs')
     public async addToWhitelistTxs(@Body() whiteListTxDto: WhiteListTxDto) {
-              
+
         return await this.asaService.createAddUsersToWhitelistTxs(whiteListTxDto.emails, whiteListTxDto.asaEntityID, whiteListTxDto.from);
     }
 
@@ -81,8 +83,22 @@ export class AsaController {
         return (await this.asaService.getByIDOrFail(id)).whitelist;
     }
 
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/makeAddSupplierTx')
+    public async makeAddSupplierTx(@Body() newSupplierTxData: SupplierTx): Promise<Transaction[]> {
+        return await this.asaService.addSupplierTx(newSupplierTxData.asaID, newSupplierTxData.supplierAddress);
+    }
+
+
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/addSupplier')
+    public async addSupplier(@Body() newSupplierTxData: SupplierDto): Promise<void> {
+        await this.asaService.addSupplier(newSupplierTxData.optInTxSig, newSupplierTxData.setLevelTxSig);
+    }
+
+    //TODO: add auth guard for node
     @Post('/optInTx')
-    public async makeOptInTx(@Body() optInTxDto :OptInTxDto): Promise<Transaction> {
+    public async makeOptInTx(@Body() optInTxDto: OptInTxDto): Promise<Transaction> {
         return await this.asaService.makeOptInTx(optInTxDto);
     }
 }

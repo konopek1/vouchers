@@ -101,6 +101,7 @@ export class AsaService {
     }
 
     // For now it only updates clawback address but can be extended with ease
+    // TODO other suppliers can be added here
     public async createUpdateAsaTx(updateAsaDto: UpdateAsaDto) {
         const asa = await this.asaRepository.findOneOrFail({ id: updateAsaDto.entityAsaID });
         const defaultParameters = await this.algorandService.getTransactionDefaultParameters();
@@ -127,7 +128,7 @@ export class AsaService {
         const asaID = decodedTx.assetIndex;
         const asa = await this.asaRepository.findOneOrFail({ asaID });
 
-        const confirmedTx = await this.algorandService.sendSignedTx(signedUpdateAsaTx);
+        await this.algorandService.sendSignedTx(signedUpdateAsaTx);
         asa.clawback = encodeAddress(decodedTx.assetClawback.publicKey);
 
         await this.asaRepository.save(asa);
@@ -135,7 +136,25 @@ export class AsaService {
         return asa;
     }
 
-    public async createAddUsersToWhitelistTxs(emails: string[], entityAsaID: number, from: string): Promise<any[]> {
+    public async addSupplierTx(asaEntityID: number, target: string): Promise<[Transaction, Transaction]> {
+        const optInAppTx = await this.contractService.createOptInContractTx({address: target, entityAsaID: asaEntityID});
+
+        const asa = await this.asaRepository.findOneOrFail(asaEntityID);
+
+        const supplierPermissionTx = await this.contractService.createCallAddSupplierTx(asaEntityID, target, asa.manager);
+
+        return [
+            optInAppTx,
+            supplierPermissionTx
+        ];
+    }
+
+    public async addSupplier(optInTx: TxSig, setLevelTx: TxSig): Promise<void> {
+        await this.algorandService.sendSignedTx(optInTx);
+        await this.algorandService.sendSignedTx(setLevelTx);
+    }
+
+    public async createAddUsersToWhitelistTxs(emails: string[], entityAsaID: number, from: string): Promise<Transaction[]> {
         const users = await this.userService.getUsersByEmails(emails);
         const asa = await this.getByIDOrFail(entityAsaID);
 
@@ -155,7 +174,7 @@ export class AsaService {
     }
 
 
-    public async createRemoveUsersFromWhitelistTxs(emails: string[], entityAsaID: number, from: string): Promise<any[]> {
+    public async createRemoveUsersFromWhitelistTxs(emails: string[], entityAsaID: number, from: string): Promise<Transaction[]> {
         const users = await this.userService.getUsersByEmails(emails);
         const asa = await this.getByIDOrFail(entityAsaID);
 
@@ -182,7 +201,7 @@ export class AsaService {
         }
     }
 
-    public async modifyWhitelist(signTx: TxSig) {
+    public async modifyWhitelist(signTx: TxSig): Promise<void> {
         const decodedTx = algosdk.decodeSignedTransaction(signTx.blob).txn;
         const whiteListedAccounts = decodedTx.appAccounts;
 

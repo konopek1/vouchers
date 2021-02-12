@@ -46,8 +46,8 @@ export class ParticipationService {
     }
 
     async participateUser(txs: SendParticipateTxDto): Promise<void> {
-        await this.paymentService.sendAsaTransfer(txs);
         await this.paymentService.sendTransfer(txs.setLevelSigTx);
+        await this.paymentService.sendAsaTransfer(txs);
     }
 
 }
