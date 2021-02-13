@@ -400,6 +400,5 @@ Temporary Items
 # Local
 .env
 dist
-
-docker.env
+todo.todo
 .lsp
