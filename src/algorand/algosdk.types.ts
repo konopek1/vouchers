@@ -42,3 +42,8 @@ export interface TxPendingInformation {
   applicationId: number,
   asaId: number
 }
+
+
+export interface AssetsBalance {
+  [asaID: number]: number|undefined;
+}

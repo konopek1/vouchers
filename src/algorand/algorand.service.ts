@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AssetResult, CompileOut, ConfirmedTxInfo, SuggestedParams, TxSig } from 'algosdk';
 import AlgorandClient from '../lib/AlgorandClient';
+import { AssetsBalance } from './algosdk.types';
 
 
 @Injectable()
@@ -55,4 +56,15 @@ export default class AlgorandService {
     return await this.algorandClient.client.getAssetByID(asaID).do();
   }
 
+  async getAccountBalance(address: string): Promise<AssetsBalance> {
+    const accountInfo = await this.algorandClient.client.accountInformation(address).do();
+
+    let assetsBalance = {};
+
+    for(const assetInfo of accountInfo.assets) {
+      assetsBalance[assetInfo['asset-id']] = assetInfo.amount;
+    }
+
+    return assetsBalance;
+  }
 }

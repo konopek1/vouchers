@@ -7,7 +7,7 @@ import SignedTxDto from "src/asa/SignedTx.dto";
 import { ContractService } from "src/contract/contract.service";
 import { EMPTY_NOTE, ZERO_ADDRESS } from "src/lib/Constants";
 import { encodeCompiledTeal } from "src/lib/Helpers";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import AsaTransferTxDto from "./AsaTransferTx.dto";
 import AtomicAsaTx, { SerializedAtomicAsaTx } from "./AtomicAsaTx";
 import SendAsaDto from "./SendAsa.dto";
@@ -93,7 +93,22 @@ export class PaymentService {
         return await this.algorandService.sendSignedTxs(signedGroupedTxs);
     }
 
+    //TODO to increase perfmoance create in memory mapping asaID => asaEnittyID
+    async getBalance(address: string) {
+        const balancesWithAsaID = await this.algorandService.getAccountBalance(address);
 
+        const assets = await this.asaRepository.find({ where: { asaID: In(Object.keys(balancesWithAsaID)) } });
+
+        let balanceWithAsaEntityID = {};
+
+        for(const [asaID, amount] of Object.entries(balancesWithAsaID)) {
+            const asaEntityID = assets.find(a => a.asaID === Number(asaID)).id;
+            
+            balanceWithAsaEntityID[asaEntityID] = amount;
+        }
+
+        return balanceWithAsaEntityID;
+    }
 
 }
 

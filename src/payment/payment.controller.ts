@@ -1,7 +1,8 @@
-import { Body, Controller, Post, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards, UseInterceptors } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import SignedTxDto from "src/asa/SignedTx.dto";
 import { TransactionSerializerInterceptor } from "src/lib/TransactionSerializerInterceptor";
+import User from "src/user/user.entity";
 import AsaTransferTxDto from "./AsaTransferTx.dto";
 import { PaymentService } from "./payment.service";
 import PaymentTxDto from "./PaymentTx.dto";
@@ -36,6 +37,12 @@ export class PaymentController {
     @Post('sendTransfer')
     async sendTransfer(@Body() txSig: SignedTxDto) {
         return await this.paymentService.sendTransfer(txSig);
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Get('balance/:address')
+    async getBalance(@Param('address') address: string) {
+        return await this.paymentService.getBalance(address);
     }
 
 }

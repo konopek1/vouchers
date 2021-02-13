@@ -17,7 +17,7 @@ export class WalletService {
         @InjectRepository(Wallet)
         private readonly walletRepository: Repository<Wallet>,
         private readonly configService: ConfigService,
-        private readonly paymentService: PaymentService
+        private readonly paymentService: PaymentService,
         ) { }
 
     async getWalletByPublicKeyOrFail(publicKey: string): Promise<Wallet> {
@@ -57,12 +57,15 @@ export class WalletService {
     }
 
 
-    async getOwnedByUser(userID: number): Promise<Wallet[]> {
-        return (await this.walletRepository.find({
+    async getOwnedByUser(userID: number): Promise<Wallet[]> {        
+        const wallets = (await this.walletRepository.find({
             where: {
                 owner: userID
             },
             relations: ['asa']
         }));
+
+        return wallets;
     }
+
 }

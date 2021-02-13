@@ -8,7 +8,8 @@ export default class AlgorandController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get('txParams')
-  getTransactionDefaultParameters() {
-    return this.algorandService.getTransactionDefaultParameters();
+  async getBalance(address: string) {
+    return await this.algorandService.getAccountBalance(address);
   }
+
 }
