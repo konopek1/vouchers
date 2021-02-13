@@ -13,8 +13,15 @@ export class AuthenticationController {
     ) {}
 
     @Post('register')
-    async register(@Body() registrationData: RegisterDto): Promise<User> {
-        return await this.authenticationService.register(registrationData);
+    async register(@Body() registrationData: RegisterDto, @Req() request): Promise<User> {
+        const user = await this.authenticationService.register(registrationData);
+        
+        const cookie = this.authenticationService.createJWTCookie(user.id);
+        request.res.setHeader('set-cookie',cookie);
+
+        user.wallets = [];
+        
+        return user;
     }
 
     @UseGuards(AuthGuard('local'))
@@ -29,7 +36,6 @@ export class AuthenticationController {
         return user;
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post('log-out')
     @HttpCode(200)
     async logOut(@Req() request: Request) {
