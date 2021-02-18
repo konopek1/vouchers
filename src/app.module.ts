@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AlgorandModule } from './algorand/algorand.module';
 import { AsaModule } from './asa/asa.module';
 import { DatabaseModule } from './database/database.module';
-import { PaymentModule } from './payment/payment.module';
+import { LoggerMiddleware } from './lib/Logger.middleware';
 import { ParticipationModule } from './participation/participation.module';
+import { PaymentModule } from './payment/payment.module';
 import WalletModule from './wallet/wallet.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 const Joi = require('@hapi/joi');
 
 
@@ -45,4 +46,8 @@ const validationSchema = Joi.object({
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

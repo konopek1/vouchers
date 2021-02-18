@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ConfirmedTxInfo, makeAssetTransferTxnWithSuggestedParams, makeLogicSig, makePaymentTxnWithSuggestedParams, signLogicSigTransactionObject, Transaction } from "algosdk";
 import AlgorandService from "src/algorand/algorand.service";
@@ -93,7 +93,8 @@ export class PaymentService {
         return await this.algorandService.sendSignedTxs(signedGroupedTxs);
     }
 
-    //TODO to increase perfmoance create in memory mapping asaID => asaEnittyID
+    //TODO zrobic porzadek z tym algortmem bo sie rzygac chce
+    // to jest ogolnie jakiego przekombinowane i powinno sie tu użyć pubSub najlepiej jako oddzielny mikroserwis
     async getBalance(address: string) {
         const balancesWithAsaID = await this.algorandService.getAccountBalance(address);
 

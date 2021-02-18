@@ -8,6 +8,6 @@ export default class RegisterDto {
 
     @IsString()
     @IsNotEmpty()
-    @Length(10,32)
+    @Length(8,32)
     password: string;
 }
