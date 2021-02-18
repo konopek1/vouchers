@@ -6,6 +6,8 @@ import { DatabaseModule } from './database/database.module';
 import { PaymentModule } from './payment/payment.module';
 import { ParticipationModule } from './participation/participation.module';
 import WalletModule from './wallet/wallet.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 const Joi = require('@hapi/joi');
 
 
@@ -29,7 +31,17 @@ const validationSchema = Joi.object({
 });
 
 @Module({
-  imports: [AlgorandModule, ConfigModule.forRoot({ validationSchema }), DatabaseModule, AsaModule, PaymentModule, WalletModule, ParticipationModule],
+  imports: [AlgorandModule, ConfigModule.forRoot({ validationSchema }), DatabaseModule, AsaModule, PaymentModule, WalletModule, ParticipationModule,
+    ServeStaticModule.forRoot(
+      {
+        rootPath: join(__dirname, '..', 'apps/admin_app'),
+        serveRoot: '/admin'
+      },
+      {
+        rootPath: join(__dirname, '..', 'apps/user_app'),
+      },
+    ),
+  ],
   controllers: [],
   providers: [],
 })
