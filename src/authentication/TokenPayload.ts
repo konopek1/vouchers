@@ -1,3 +1,9 @@
 export default interface TokenPayload {
-    userId: number
+    userId: number,
+    role: Role
+}
+
+export enum Role {
+    User,
+    Admin
 }

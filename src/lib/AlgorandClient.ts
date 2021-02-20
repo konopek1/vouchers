@@ -27,8 +27,6 @@ export default class AlgorandClient {
 
         currentRound++;
 
-
-
         await this.client.statusAfterBlock(currentRound).do();
       }
     }

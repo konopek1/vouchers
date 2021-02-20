@@ -5,6 +5,7 @@ import User from "src/user/user.entity";
 import { AuthenticationService } from "./authentication.service";
 import RegisterDto from "./Register.dto";
 import RequestWithUser from "./RequestWithUser";
+import { Role } from "./TokenPayload";
 
 @Controller('auth')
 export class AuthenticationController {
@@ -14,9 +15,9 @@ export class AuthenticationController {
 
     @Post('register')
     async register(@Body() registrationData: RegisterDto, @Req() request): Promise<User> {
-        const user = await this.authenticationService.register(registrationData);
+        const user = await this.authenticationService.registerUser(registrationData);
         
-        const cookie = this.authenticationService.createJWTCookie(user.id);
+        const cookie = this.authenticationService.createJWTCookie(user.id, Role.User);
         request.res.setHeader('set-cookie',cookie);
 
         user.wallets = [];
@@ -28,10 +29,18 @@ export class AuthenticationController {
     @Post('log-in')
     async logIn(@Req() request: RequestWithUser) {
         const user = request.user;
-        user.password = undefined;
 
-        const cookie = this.authenticationService.createJWTCookie(user.id);
+        const cookie = this.authenticationService.createJWTCookie(user.id, Role.User);
         request.res.setHeader('set-cookie',cookie);
+
+        return user;
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Get()
+    async authenticate(@Req() request: RequestWithUser) {
+        const user = request.user;
+        user.password = undefined;
 
         return user;
     }
@@ -44,11 +53,22 @@ export class AuthenticationController {
     }
 
     @UseGuards(AuthGuard('jwt'))
-    @Get()
-    async authenticate(@Req() request: RequestWithUser) {
-        const user = request.user;
-        user.password = undefined;
+    @Get('/admin/auth')
+    async authenticateAdmin(@Req() request: RequestWithUser) {
+        const admin = request.user;
 
-        return user;
+        return admin;
     }
+
+    @UseGuards(AuthGuard('admin'))
+    @Post('/admin/log-in')
+    async adminLogIn(@Req() request: RequestWithUser) {
+        const admin = request.user;
+
+        const cookie = this.authenticationService.createJWTCookie(admin.id, Role.Admin);
+        request.res.setHeader('set-cookie',cookie);
+
+        return admin;
+    }  
+
 }

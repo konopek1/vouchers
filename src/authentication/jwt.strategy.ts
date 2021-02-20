@@ -3,14 +3,16 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Request } from "express";
 import { ExtractJwt, Strategy } from "passport-jwt";
+import { AdminService } from "src/admin/admin.service";
 import { UserService } from "src/user/user.service";
-import TokenPayload from "./TokenPayload";
+import TokenPayload, { Role } from "./TokenPayload";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy){
     constructor(
-        private readonly configService: ConfigService,
-        private readonly userService: UserService
+        configService: ConfigService,
+        private readonly userService: UserService,
+        private readonly adminService: AdminService
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromExtractors([(req: Request) => req?.cookies?.Authentication]),
@@ -19,6 +21,13 @@ export class JwtStrategy extends PassportStrategy(Strategy){
     }
 
     async validate(payload: TokenPayload) {
-        return this.userService.getById(payload.userId);
+        switch (payload.role) {
+            case Role.Admin:
+                return this.adminService.getById(payload.userId);
+            case Role.User:
+                return this.userService.getById(payload.userId);
+            default:
+                break;
+        }
     }
 }
