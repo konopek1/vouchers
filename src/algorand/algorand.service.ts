@@ -1,12 +1,18 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { AssetResult, CompileOut, ConfirmedTxInfo, SuggestedParams, TxSig } from 'algosdk';
+import { Asa } from 'src/asa/asa.entity';
+import { Repository } from 'typeorm';
 import AlgorandClient from '../lib/AlgorandClient';
 import { AssetsBalance } from './algosdk.types';
 
 
 @Injectable()
 export default class AlgorandService {
-  constructor(private algorandClient: AlgorandClient) { }
+  constructor(
+    private readonly algorandClient: AlgorandClient,
+    @InjectRepository(Asa)
+    private readonly asaRepository: Repository<Asa>) { }
 
   async getTransactionDefaultParameters(): Promise<SuggestedParams> {
     return this.algorandClient.client.getTransactionParams().do();
@@ -62,7 +68,8 @@ export default class AlgorandService {
     let assetsBalance = {};
 
     for(const assetInfo of accountInfo.assets) {
-      assetsBalance[assetInfo['asset-id']] = assetInfo.amount;
+      const asaEntity = await this.asaRepository.findOneOrFail({asaID : assetInfo['asset-id']});
+      assetsBalance[asaEntity.id] = assetInfo.amount;
     }
 
     return assetsBalance;

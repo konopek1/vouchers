@@ -1,13 +1,12 @@
-import { Global, Module } from '@nestjs/common';
-import AlgorandController from './algorand.controller';
-import AlgorandService from './algorand.service';
-import AlgorandClient from '../lib/AlgorandClient';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AuthenticationModule } from 'src/authentication/authentication.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Asa } from 'src/asa/asa.entity';
+import AlgorandClient from '../lib/AlgorandClient';
+import AlgorandService from './algorand.service';
 
 @Module({
-  imports: [ConfigModule, AuthenticationModule],
-  controllers: [AlgorandController],
+  imports: [ConfigModule, TypeOrmModule.forFeature([Asa])],
   providers: [AlgorandClient, AlgorandService],
   exports: [AlgorandService]
 })

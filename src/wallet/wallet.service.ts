@@ -25,7 +25,6 @@ export class WalletService {
     }
 
     async addWallet(walletData: AddWalletDto ) {
-
         const asa = new Asa();
         asa.id = walletData.asaID;
 
@@ -46,7 +45,6 @@ export class WalletService {
     }
 
     async participateWallet(publicAddress: string): Promise<void> {
-        
         const supplierMnemonic = this.configService.get('SUPPLIER_MNEMONIC');
         const { addr, sk } = mnemonicToSecretKey(supplierMnemonic);        
         const supplyTransaction = await this.paymentService.makeTransferTx(addr, publicAddress, MINIMUM_ALGOS);

@@ -7,7 +7,7 @@ ARG SHA=
 
 # When these are set attempt to connect to a network.
 ARG GENESIS_FILE=""
-ARG BOOTSTRAP_URL=""
+ARG BOOTSTRAP_URL="127.0.0.1"
 
 # Options for algod config
 ARG ALGOD_PORT=""

@@ -8,6 +8,7 @@ import { DatabaseModule } from './database/database.module';
 import { LoggerMiddleware } from './lib/Logger.middleware';
 import { ParticipationModule } from './participation/participation.module';
 import { PaymentModule } from './payment/payment.module';
+import { UserModule } from './user/user.module';
 import WalletModule from './wallet/wallet.module';
 const Joi = require('@hapi/joi');
 
@@ -32,7 +33,7 @@ const validationSchema = Joi.object({
 });
 
 @Module({
-  imports: [AlgorandModule, ConfigModule.forRoot({ validationSchema }), DatabaseModule, AsaModule, PaymentModule, WalletModule, ParticipationModule,
+  imports: [AlgorandModule, ConfigModule.forRoot({ validationSchema }), DatabaseModule, AsaModule, PaymentModule, WalletModule, ParticipationModule, UserModule,
     ServeStaticModule.forRoot(
       {
         rootPath: join(__dirname, '..', 'apps/admin_app'),

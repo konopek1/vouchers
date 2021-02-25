@@ -100,7 +100,6 @@ export class AsaService {
         return await this.asaRepository.save(newAsa);
     }
 
-    // For now it only updates clawback address but can be extended with ease
     // TODO other suppliers can be added here
     public async createUpdateAsaTx(updateAsaDto: UpdateAsaDto) {
         const asa = await this.asaRepository.findOneOrFail({ id: updateAsaDto.entityAsaID });

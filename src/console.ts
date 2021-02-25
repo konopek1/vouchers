@@ -1,12 +1,7 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import * as repl from 'repl';
-import * as Logger from 'purdy';
-
-const LOGGER_OPTIONS = {
-  indent: 2,
-  depth: 1,
-};
+import createWalletFromMnemonic from 'src/consoleScripts/createWalletFromMnemonic';
 
 class InteractiveNestJS {
   async run() {
@@ -21,16 +16,15 @@ class InteractiveNestJS {
     const server = repl.start({
       useColors: true,
       prompt: '> ',
-      writer: replWriter,
       ignoreUndefined: true,
     });
     server.context.app = applicationContext;
+    
+    // ---- ADD CUSTOM SCRIPTS ----
+    server.context.createWalletFromMnemonic = createWalletFromMnemonic;
+    
     awaitOutside.addAwaitOutsideToReplServer(server);
   }
-}
-
-function replWriter(value: object): string {
-  return Logger.stringify(value, LOGGER_OPTIONS);
 }
 
 const session = new InteractiveNestJS();

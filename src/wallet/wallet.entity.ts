@@ -3,7 +3,6 @@ import User from "src/user/user.entity";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { WalletState } from "./WalletState";
 
-@Unique(["owner","asa"])
 @Entity()
 export default class Wallet {
 
@@ -16,7 +15,7 @@ export default class Wallet {
     @Column()
     encryptedPrivateKey: string;
 
-    @ManyToOne(() => Asa, { eager: true })
+    @ManyToOne(() => Asa, { eager: true, nullable: true })
     asa: Asa
 
     @ManyToOne(() => User, (user: User) => user.wallets, { eager: true })

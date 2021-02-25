@@ -67,6 +67,7 @@
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
     "jest": "^26.6.3",
+    "key-store": "^1.2.0",
     "prettier": "^2.1.2",
     "purdy": "^3.5.1",
     "repl": "^0.1.3",

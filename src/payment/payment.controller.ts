@@ -38,11 +38,4 @@ export class PaymentController {
     async sendTransfer(@Body() txSig: SignedTxDto) {
         return await this.paymentService.sendTransfer(txSig);
     }
-
-    @UseGuards(AuthGuard('jwt'))
-    @Get('balance/:address')
-    async getBalance(@Param('address') address: string) {
-        return await this.paymentService.getBalance(address);
-    }
-
 }
