@@ -84,32 +84,12 @@ export class PaymentService {
         const algorandAsaID = unSignedTransferAsaTx.assetIndex;
         const asa = await this.asaRepository.findOneOrFail({ asaID: algorandAsaID });
 
-        const escrow = (await this.contractService.compileEscrow(asa.id)).result;
-        const logicSigEscrow = makeLogicSig(encodeCompiledTeal(escrow));
+        const logicSigEscrow = makeLogicSig(encodeCompiledTeal(asa.escrowContract));
         const signedTransferTx = signLogicSigTransactionObject(unSignedTransferAsaTx, logicSigEscrow);
 
         const signedGroupedTxs = AtomicAsaTx.groupSignedTxs(signedCheckLevelTx, signedTransferTx, signedPaymentTx);
 
         return await this.algorandService.sendSignedTxs(signedGroupedTxs);
     }
-
-    //TODO zrobic porzadek z tym algortmem bo sie rzygac chce
-    // to jest ogolnie jakiego przekombinowane i powinno sie tu użyć pubSub najlepiej jako oddzielny mikroserwis
-    async getBalance(address: string) {
-        const balancesWithAsaID = await this.algorandService.getAccountBalance(address);
-
-        const assets = await this.asaRepository.find({ where: { asaID: In(Object.keys(balancesWithAsaID)) } });
-
-        let balanceWithAsaEntityID = {};
-
-        for(const [asaID, amount] of Object.entries(balancesWithAsaID)) {
-            const asaEntityID = assets.find(a => a.asaID === Number(asaID)).id;
-            
-            balanceWithAsaEntityID[asaEntityID] = amount;
-        }
-
-        return balanceWithAsaEntityID;
-    }
-
 }
 

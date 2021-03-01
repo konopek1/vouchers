@@ -91,6 +91,10 @@ export class ContractService {
 
         const compiledEscrow = await this.algorandService.compile(escrowTeal);
 
+        asa.escrowContract = compiledEscrow.result;
+        
+        await this.asaRepository.save(asa);
+
         await this.fundEscrow(compiledEscrow.result);
 
         return compiledEscrow;

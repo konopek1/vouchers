@@ -36,4 +36,7 @@ export class Asa {
     @ManyToMany(() => User)
     @JoinTable()
     whitelist: User[];
+
+    @Column({nullable: true})
+    escrowContract: string;
 }

@@ -39,19 +39,17 @@ export default class AlgorandService {
   }
 
   async sendSignedTxs(signedTxs: TxSig[]): Promise<ConfirmedTxInfo> {
-    let rv;
 
     const blobs = signedTxs.map(sigTx => sigTx.blob);
 
     try {
       const txID = (await this.algorandClient.client.sendRawTransaction(blobs).do()).txId;
 
-      rv = await this.algorandClient.waitForConfirmation(txID);
+      return await this.algorandClient.waitForConfirmation(txID);
     } catch (e) {
       throw new HttpException(`Transaction submission error: ${e.response.body.message}`, HttpStatus.BAD_REQUEST);
     }
 
-    return rv;
   }
 
   async compile(program: string): Promise<CompileOut> {

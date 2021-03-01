@@ -2,7 +2,7 @@ const EMPTY_NOTE = new Uint8Array();
 
 const ZERO_ADDRESS = undefined;
 
-const MINIMUM_ALGOS = 350000;
+const MINIMUM_ALGOS = 500000;
 
 const ESCROW_SUPPLY = 500000;
 

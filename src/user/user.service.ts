@@ -63,6 +63,7 @@ export class UserService {
         );
     }
 
+    // Need to be move to other component
     async balance(user: User): Promise<AssetsBalance> {
         let balances = {};
         const wallets = await this.walletRepository.find({where: {owner: user.id}});

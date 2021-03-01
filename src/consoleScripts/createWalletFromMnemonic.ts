@@ -22,8 +22,8 @@ export default async function createWalletFromMnemonic(mnemonic: string, passwor
     return wallet;
 }
 
-// const wallet = await createWalletFromMnemonic("model bottom laundry family about vacant fly seek this rebel confirm differ joke express easily liar east siren transfer life flip struggle hen ability destroy", "SecretKey")
+// const wallet = await createWalletFromMnemonic("lake large patrol used layer reason side giraffe evil process mind document flag item where gauge service tragic erupt parrot unveil burden become above charge", "SecretKey")
 // const userService = app.get('UserService')
-// await  userService.createAdmin("admin2@local.com","qazwsx123",wallet)
+// await  userService.createAdmin("admin@local.com","qazwsx123",wallet)
 
 
