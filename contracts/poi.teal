@@ -242,7 +242,6 @@ gtxn 1 Fee
 bz failed
 
 
-
 // now handle the level check
 
 // if sender have second level he can transact to anyone

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import * as repl from 'repl';
-import createWalletFromMnemonic from 'src/consoleScripts/createWalletFromMnemonic';
+import createWalletFromMnemonic from './consoleScripts/createWalletFromMnemonic';
 
 class InteractiveNestJS {
   async run() {

@@ -18,26 +18,13 @@ services:
     container_name: pgadmin
     image: dpage/pgadmin4
     ports:
-    - "8080:80"
+    - "8085:80"
     volumes:
     - /data/pgadmin:/root/.pgadmin
     env_file:
     - docker.env
     networks:
     - postgres
-  
-  algod:
-    container_name: "algorand-sandbox-algod"
-    build:
-      context: .
-      dockerfile: ./images/algod/Dockerfile
-      args:
-        TOKEN: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        ALGOD_PORT: "4001"
-        KMD_PORT: "4002"
-    ports:
-      - 4001:4001
-      - 4002:4002
  
 networks:
   postgres:

@@ -1,5 +1,5 @@
 import { createStore } from 'key-store';
-import Wallet from 'src/wallet/wallet.entity';
+import Wallet from '../wallet/wallet.entity';
 const algosdk = require('algosdk');
 
 export default async function createWalletFromMnemonic(mnemonic: string, password: string) {
@@ -7,11 +7,11 @@ export default async function createWalletFromMnemonic(mnemonic: string, passwor
 
     const publicKey = adminAccount.addr;
     const secretKey = Buffer.from(adminAccount.sk).toString('base64');
-    
-    const keyStore = createStore<string,string>(() => {});
-    
-    await keyStore.saveKey("0",password, secretKey, publicKey);
-    
+
+    const keyStore = createStore<string, string>(() => { });
+
+    await keyStore.saveKey("0", password, secretKey, publicKey);
+
     const keyPair = keyStore.getRawKeyData("0");
 
     const wallet = new Wallet();
@@ -22,7 +22,7 @@ export default async function createWalletFromMnemonic(mnemonic: string, passwor
     return wallet;
 }
 
-// const wallet = await createWalletFromMnemonic("lake large patrol used layer reason side giraffe evil process mind document flag item where gauge service tragic erupt parrot unveil burden become above charge", "SecretKey")
+// const wallet = await createWalletFromMnemonic("obscure polar control mother bus spy vacuum clip valid enemy suggest detail flame estate leisure mixture lecture brush field globe lonely glass action ability hobby", "SecretKey")
 // const userService = app.get('UserService')
 // await  userService.createAdmin("admin@local.com","qazwsx123",wallet)
 
