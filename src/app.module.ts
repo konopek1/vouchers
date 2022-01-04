@@ -36,11 +36,11 @@ const validationSchema = Joi.object({
   imports: [AlgorandModule, ConfigModule.forRoot({ validationSchema }), DatabaseModule, AsaModule, PaymentModule, WalletModule, ParticipationModule, UserModule,
     ServeStaticModule.forRoot(
       {
-        rootPath: join(__dirname, '..', 'apps/admin_app'),
+        rootPath: join(__dirname, '..', 'apps/admin_app/build'),
         serveRoot: '/admin'
       },
       {
-        rootPath: join(__dirname, '..', 'apps/user_app'),
+        rootPath: join(__dirname, '..', 'apps/user_app/build'),
       },
     ),
   ],

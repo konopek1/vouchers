@@ -402,8 +402,4 @@ Temporary Items
 dist
 todo.todo
 .lsp
-apps/admin_app/*
-apps/user_app/*
-!apps/admin_app/.gitkeep
-!apps/user_app/.gitkeep
 

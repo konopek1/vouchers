@@ -1,5 +1,5 @@
 export default {
-  // origin: /kodklienta\.pl$/,
+  // origin: /localhost:3000$/,
   credentials: true,
   exposedHeaders: ["set-cookie"],
 };
