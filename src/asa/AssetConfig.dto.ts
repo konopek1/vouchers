@@ -3,14 +3,14 @@ import { Transform } from "class-transformer";
 import { IsBoolean, IsNumber, IsString, IsUrl, Length, Max, Min } from "class-validator";
 
 export default class AssetConfigDto {
-    
+
     @IsString()
     @Length(58, 58)
     addr: string;  // the account issuing the transaction; the asset creator
 
     @Optional()
     @IsNumber()
-    readonly fee = Math.pow(2,-55);  // the number of microAlgos per byte to pay as a transaction fee
+    readonly fee = Math.pow(2, -55);  // the number of microAlgos per byte to pay as a transaction fee
 
     @IsBoolean()
     @Optional()
@@ -45,7 +45,7 @@ export default class AssetConfigDto {
     @IsString()
     assetName: string;  // "friendly name" of asset
 
-    @Transform((note: string) => new Uint8Array(Buffer.from(note,"base64")))
+    @Transform((note: string) => new Uint8Array(Buffer.from(note, "utf-8")))
     note: Uint8Array;       // arbitrary data to be stored in the transaction; here, none is stored
 
     @IsUrl()

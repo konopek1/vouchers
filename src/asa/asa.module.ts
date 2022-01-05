@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { AlgorandModule } from "src/algorand/algorand.module";
-import { AuthenticationModule } from "src/authentication/authentication.module";
-import { ContractModule } from "src/contract/contract.module";
-import { TransactionSerializerInterceptor } from "src/lib/TransactionSerializerInterceptor";
-import { UserModule } from "src/user/user.module";
-import WalletModule from "src/wallet/wallet.module";
+import { AlgorandModule } from "../algorand/algorand.module";
+import { AuthenticationModule } from "../authentication/authentication.module";
+import { ContractModule } from "../contract/contract.module";
+import { TransactionSerializerInterceptor } from "../lib/TransactionSerializerInterceptor";
+import { UserModule } from "../user/user.module";
+import WalletModule from "../wallet/wallet.module";
 import { AsaController } from "./asa.controller";
 import { Asa } from "./asa.entity";
 import { AsaService } from "./asa.service";
@@ -16,4 +16,4 @@ import { AsaService } from "./asa.service";
     controllers: [AsaController],
     exports: []
 })
-export class AsaModule {}
+export class AsaModule { }

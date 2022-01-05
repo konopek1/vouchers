@@ -1,10 +1,10 @@
-import { fromBase64, toBase64 } from "src/lib/Helpers";
+import { fromBase64, toBase64 } from "../lib/Helpers";
 
 export class ParticipationToken {
     constructor(
         private readonly userID: number,
         private readonly asaID: string
-        ){}
+    ) { }
 
     private static readonly SPLIT_SIGN = '#';
 

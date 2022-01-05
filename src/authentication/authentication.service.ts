@@ -1,4 +1,4 @@
-import { UserService } from "src/user/user.service";
+import { UserService } from "../user/user.service";
 import RegisterDto from "./Register.dto";
 import * as bcrypt from "bcrypt";
 import { PostgresErrorCode } from "../database/postgresErrorCode.enum";
@@ -13,11 +13,11 @@ export class AuthenticationService {
         private readonly userService: UserService,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
-        ) {}
+    ) { }
 
     public async registerUser(registerData: RegisterDto) {
         const hashedPassword = await bcrypt.hash(registerData.password, 10);
-        
+
         try {
             const createdUser = await this.userService.create({
                 ...registerData,
@@ -27,7 +27,7 @@ export class AuthenticationService {
 
             return createdUser;
         } catch (error) {
-            if(error?.code === PostgresErrorCode.UniqueViolation) {
+            if (error?.code === PostgresErrorCode.UniqueViolation) {
                 throw new HttpException('User with this email already exists', HttpStatus.BAD_REQUEST);
             }
             throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -44,21 +44,21 @@ export class AuthenticationService {
             throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
         }
     }
-    
+
     public async getAuthenticatedUser(email: string, plainPassword: string) {
         try {
             const user = await this.userService.getByEmail(email);
 
             await this.verifyPassword(plainPassword, user.password);
-            
+
             user.password = undefined;
 
             return user;
-        } catch(error) {
+        } catch (error) {
             throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
         }
     }
-    
+
 
     public createClearCookie() {
         return `Authentication=; HttpOnly; Path=/; Max-Age=0`;

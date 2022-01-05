@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, Post, UseGuards, UseInterceptors } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
-import SignedTxDto from "src/asa/SignedTx.dto";
-import { TransactionSerializerInterceptor } from "src/lib/TransactionSerializerInterceptor";
-import User from "src/user/user.entity";
+import SignedTxDto from "../asa/SignedTx.dto";
+import { TransactionSerializerInterceptor } from "../lib/TransactionSerializerInterceptor";
+import User from "../user/user.entity";
 import AsaTransferTxDto from "./AsaTransferTx.dto";
 import { PaymentService } from "./payment.service";
 import PaymentTxDto from "./PaymentTx.dto";

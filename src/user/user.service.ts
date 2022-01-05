@@ -1,13 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Role } from "src/authentication/TokenPayload";
-import Wallet from "src/wallet/wallet.entity";
+import { Role } from "../authentication/TokenPayload";
+import Wallet from "../wallet/wallet.entity";
 import { In, Repository } from "typeorm";
 import { CreateUserDto } from "./CreateUser.dto";
 import User from "./user.entity";
 import * as bcrypt from 'bcrypt';
-import AlgorandService from "src/algorand/algorand.service";
-import { AssetsBalance } from "src/algorand/algosdk.types";
+import AlgorandService from "../algorand/algorand.service";
+import { AssetsBalance } from "../algorand/algosdk.types";
 
 @Injectable()
 export class UserService {
@@ -29,7 +29,7 @@ export class UserService {
     async createAdmin(email: string, password: string, wallet: Wallet) {
         const admin = await this.userRepository.create({
             email,
-            password: (await bcrypt.hash(password,10)),
+            password: (await bcrypt.hash(password, 10)),
             role: Role.Admin,
         });
 
@@ -37,7 +37,7 @@ export class UserService {
 
         wallet.owner = admin;
         await this.walletRepository.save(wallet);
-        persistedAdmin.wallets = [ wallet ];
+        persistedAdmin.wallets = [wallet];
 
         await this.userRepository.save(persistedAdmin);
 
@@ -45,7 +45,7 @@ export class UserService {
     }
 
     async getByEmail(email: string) {
-        return await this.userRepository.findOneOrFail({ email }, { relations: ['wallets'] , select: ['id', 'password', 'email']});
+        return await this.userRepository.findOneOrFail({ email }, { relations: ['wallets'], select: ['id', 'password', 'email'] });
     }
 
     async getById(id: number) {
@@ -66,11 +66,11 @@ export class UserService {
     // Need to be move to other component
     async balance(user: User): Promise<AssetsBalance> {
         let balances = {};
-        const wallets = await this.walletRepository.find({where: {owner: user.id}});
+        const wallets = await this.walletRepository.find({ where: { owner: user.id } });
 
-        const promisedBalances = wallets.map(w =>  this.algorandService.getAccountBalance(w.publicKey));
+        const promisedBalances = wallets.map(w => this.algorandService.getAccountBalance(w.publicKey));
 
-        (await Promise.all(promisedBalances)).map(ab => balances = {...balances,...ab});
+        (await Promise.all(promisedBalances)).map(ab => balances = { ...balances, ...ab });
 
         return balances;
     }

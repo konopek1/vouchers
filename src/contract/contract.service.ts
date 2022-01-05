@@ -2,12 +2,12 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CompileOut, ConfirmedTxInfo, decodeSignedTransaction, makeApplicationCreateTxn, makeApplicationNoOpTxn, makeApplicationOptInTxn, makeLogicSig, makePaymentTxnWithSuggestedParams, mnemonicToSecretKey, signTransaction, Transaction, TxSig } from "algosdk";
-import AlgorandService from "src/algorand/algorand.service";
-import { Asa } from "src/asa/asa.entity";
-import SignedTxDto from "src/asa/SignedTx.dto";
-import { EMPTY_NOTE, ESCROW_SUPPLY, ZERO_ADDRESS } from "src/lib/Constants";
-import FileReader from 'src/lib/FileReader';
-import { areArraysEqual, encodeCompiledTeal } from "src/lib/Helpers";
+import AlgorandService from "../algorand/algorand.service";
+import { Asa } from "../asa/asa.entity";
+import SignedTxDto from "../asa/SignedTx.dto";
+import { EMPTY_NOTE, ESCROW_SUPPLY, ZERO_ADDRESS } from "../lib/Constants";
+import FileReader from '../lib/FileReader';
+import { areArraysEqual, encodeCompiledTeal } from "../lib/Helpers";
 import { Repository } from "typeorm";
 import { AppArg, AppArgs, argToUint64 } from "./AppArgs";
 import OptInTxDto from "./OptInTx.dto";
@@ -35,7 +35,7 @@ export class ContractService {
         private readonly configService: ConfigService,
     ) { }
 
-    public async createPoiContractTx(contractConfig: PoiContractDto): Promise<CompileOut> {
+    public async createPoiContractTx(contractConfig: PoiContractDto): Promise<any> {
         const poiApprovalTeal = await this.fileReader.read(this.configService.get('POI_TEAL'));
         const poiClearTeal = await this.fileReader.read(this.configService.get('POI_CLEAR_TEAL'));
 
@@ -92,7 +92,7 @@ export class ContractService {
         const compiledEscrow = await this.algorandService.compile(escrowTeal);
 
         asa.escrowContract = compiledEscrow.result;
-        
+
         await this.asaRepository.save(asa);
 
         await this.fundEscrow(compiledEscrow.result);
@@ -105,8 +105,8 @@ export class ContractService {
 
         const supplierMnemonic = await this.configService.get('SUPPLIER_MNEMONIC');
 
-        const { addr, sk } = mnemonicToSecretKey(supplierMnemonic);        
-    
+        const { addr, sk } = mnemonicToSecretKey(supplierMnemonic);
+
         const suggestedParams = await this.algorandService.getTransactionDefaultParameters();
 
         const fundEscrowTx = makePaymentTxnWithSuggestedParams(

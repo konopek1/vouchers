@@ -1,5 +1,5 @@
-import { Asa } from "src/asa/asa.entity";
-import User from "src/user/user.entity";
+import { Asa } from "../asa/asa.entity";
+import User from "../user/user.entity";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { WalletState } from "./WalletState";
 

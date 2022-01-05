@@ -1,7 +1,7 @@
 import { IsString, Length } from "class-validator";
-import { SignedTx } from "src/algorand/algosdk.types";
+import { SignedTx } from "../algorand/algosdk.types";
 import { Transform } from "class-transformer";
-import { jsonEncodedUint8ArrayToUint8Array } from "src/lib/Helpers";
+import { jsonEncodedUint8ArrayToUint8Array } from "../lib/Helpers";
 
 export default class SignedTxDto implements SignedTx {
     @IsString()

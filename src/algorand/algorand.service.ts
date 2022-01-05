@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AssetResult, CompileOut, ConfirmedTxInfo, SuggestedParams, TxSig } from 'algosdk';
-import { Asa } from 'src/asa/asa.entity';
+import { Asa } from '../asa/asa.entity';
 import { Repository } from 'typeorm';
 import AlgorandClient from '../lib/AlgorandClient';
 import { AssetsBalance } from './algosdk.types';
@@ -27,11 +27,11 @@ export default class AlgorandService {
       rv = await this.algorandClient.waitForConfirmation(signedTx.txID);
     }
     catch (e) {
-      if(e.response) {
+      if (e.response) {
         throw new HttpException(`Transaction submission error: ${e.response.body.message}`, HttpStatus.BAD_REQUEST);
       } else {
         throw new HttpException(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
-        
+
       }
     }
 
@@ -65,8 +65,8 @@ export default class AlgorandService {
 
     let assetsBalance = {};
 
-    for(const assetInfo of accountInfo.assets) {
-      const asaEntity = await this.asaRepository.findOneOrFail({asaID : assetInfo['asset-id']});
+    for (const assetInfo of accountInfo.assets) {
+      const asaEntity = await this.asaRepository.findOneOrFail({ asaID: assetInfo['asset-id'] });
       assetsBalance[asaEntity.id] = assetInfo.amount;
     }
 

@@ -2,13 +2,13 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as algosdk from 'algosdk';
 import { encodeAddress, Transaction, TxSig } from "algosdk";
-import AlgorandService from "src/algorand/algorand.service";
-import { ContractService } from "src/contract/contract.service";
-import OptInTxDto from "src/contract/OptInTx.dto";
-import { EMPTY_NOTE, ZERO_ADDRESS } from "src/lib/Constants";
-import User from "src/user/user.entity";
-import { UserService } from "src/user/user.service";
-import { WalletService } from "src/wallet/wallet.service";
+import AlgorandService from "../algorand/algorand.service";
+import { ContractService } from "../contract/contract.service";
+import OptInTxDto from "../contract/OptInTx.dto";
+import { EMPTY_NOTE, ZERO_ADDRESS } from "../lib/Constants";
+import User from "../user/user.entity";
+import { UserService } from "../user/user.service";
+import { WalletService } from "../wallet/wallet.service";
 import { In, Repository } from "typeorm";
 import { Asa } from "./asa.entity";
 import AssetConfigDto from "./AssetConfig.dto";
@@ -42,16 +42,18 @@ export class AsaService {
 
     async getByManager(managerID: number): Promise<Asa[]> {
         const managerWallets = await this.walletService.getOwnedByUser(managerID);
-        
-        return await this.asaRepository.find({where: {
-            manager: In(managerWallets.map(w => w.publicKey))
-        }});
+
+        return await this.asaRepository.find({
+            where: {
+                manager: In(managerWallets.map(w => w.publicKey))
+            }
+        });
     }
 
     async getOwnedByUser(userID: number): Promise<OwnedByUserAsasDto> {
         const ownedByUser = (await this.walletService.getOwnedByUser(userID)).map(w => w.asa);
 
-        const allAsa =  await this.getAll();
+        const allAsa = await this.getAll();
 
         const allAsaWithoutOwnedByUser = allAsa.filter(asa => !ownedByUser.some(
             secondAsa => secondAsa.id === asa.id
@@ -136,7 +138,7 @@ export class AsaService {
     }
 
     public async addSupplierTx(asaEntityID: number, target: string): Promise<[Transaction, Transaction]> {
-        const optInAppTx = await this.contractService.createOptInContractTx({address: target, entityAsaID: asaEntityID});
+        const optInAppTx = await this.contractService.createOptInContractTx({ address: target, entityAsaID: asaEntityID });
 
         const asa = await this.asaRepository.findOneOrFail(asaEntityID);
 
@@ -234,7 +236,7 @@ export class AsaService {
     public async makeOptInTx(optInTxDto: OptInTxDto): Promise<Transaction> {
         const suggestedParams = await this.algorandService.getTransactionDefaultParameters();
 
-        const asa = await this.asaRepository.findOneOrFail({id: optInTxDto.entityAsaID});
+        const asa = await this.asaRepository.findOneOrFail({ id: optInTxDto.entityAsaID });
 
         const assetTransferCallTx = algosdk.makeAssetTransferTxnWithSuggestedParams(
             optInTxDto.address,

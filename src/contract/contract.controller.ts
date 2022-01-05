@@ -1,7 +1,7 @@
 import { Body, Controller, Post, UseGuards, UseInterceptors } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
-import SignedTxDto from "src/asa/SignedTx.dto";
-import { TransactionSerializerInterceptor } from "src/lib/TransactionSerializerInterceptor";
+import SignedTxDto from "../asa/SignedTx.dto";
+import { TransactionSerializerInterceptor } from "../lib/TransactionSerializerInterceptor";
 import { ContractService } from "./contract.service";
 import EscrowTxDto from "./EscrowTx.dto";
 import OptInTxDto from "./OptInTx.dto";
@@ -17,7 +17,7 @@ export class ContractController {
     @UseGuards(AuthGuard('jwt'))
     @Post('createTx')
     public async createPoiContractTx(@Body() poiContractDto: PoiContractDto) {
-        
+
         return await this.contractService.createPoiContractTx(poiContractDto);
     }
 
@@ -38,14 +38,14 @@ export class ContractController {
     @UseGuards(AuthGuard('jwt'))
     @Post('createOptInTx')
     public async createOptInTx(@Body() optInTxDto: OptInTxDto) {
-        
+
         return await this.contractService.createOptInContractTx(optInTxDto);
     }
 
     @UseGuards(AuthGuard('jwt'))
     @Post('optIn')
     public async optIn(@Body() signedOptInTx: SignedTxDto) {
-        
+
         return await this.contractService.sendOptInTx(signedOptInTx);
     }
 }

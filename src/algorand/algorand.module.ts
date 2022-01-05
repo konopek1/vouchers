@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Asa } from 'src/asa/asa.entity';
+import { Asa } from '../asa/asa.entity';
 import AlgorandClient from '../lib/AlgorandClient';
 import AlgorandService from './algorand.service';
 
@@ -10,4 +10,4 @@ import AlgorandService from './algorand.service';
   providers: [AlgorandClient, AlgorandService],
   exports: [AlgorandService]
 })
-export class AlgorandModule {}
+export class AlgorandModule { }

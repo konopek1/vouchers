@@ -37,7 +37,8 @@ const validationSchema = Joi.object({
     ServeStaticModule.forRoot(
       {
         rootPath: join(__dirname, '..', 'apps/admin_app/build'),
-        serveRoot: '/admin'
+        serveRoot: '/admin',
+        renderPath: '/admin'
       },
       {
         rootPath: join(__dirname, '..', 'apps/user_app/build'),

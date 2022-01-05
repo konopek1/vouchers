@@ -1,5 +1,5 @@
 import { assignGroupID, Transaction, TxSig } from "algosdk";
-import { encodeTx } from "src/lib/TransactionSerializerInterceptor";
+import { encodeTx } from "../lib/TransactionSerializerInterceptor";
 
 export default class AtomicAsaTx {
     private static readonly CHECK_LEVEL_TX_INDEX = 0;

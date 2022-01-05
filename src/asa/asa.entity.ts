@@ -1,5 +1,5 @@
 import { Exclude } from "class-transformer";
-import User from "src/user/user.entity";
+import User from "../user/user.entity";
 import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -8,7 +8,7 @@ export class Asa {
     id: number;
 
     @Exclude()
-    @Column({unique: true})
+    @Column({ unique: true })
     asaID: number;
 
     @Column()
@@ -17,10 +17,10 @@ export class Asa {
     @Column()
     unitName: string;
 
-    @Column({nullable: true, unique: true})
+    @Column({ nullable: true, unique: true })
     appID: number;
-    
-    @Column({nullable: true})
+
+    @Column({ nullable: true })
     assetUrl: string;
 
     @Column()
@@ -30,13 +30,13 @@ export class Asa {
     @Column()
     manager: string;
 
-    @Column({default: false})
+    @Column({ default: false })
     valid: boolean;
 
     @ManyToMany(() => User)
     @JoinTable()
     whitelist: User[];
 
-    @Column({nullable: true})
+    @Column({ nullable: true })
     escrowContract: string;
 }

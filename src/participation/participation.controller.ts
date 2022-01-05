@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Req, UseGuards, UseInterceptors } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
-import RequestWithUser from "src/authentication/RequestWithUser";
-import { TransactionSerializerInterceptor } from "src/lib/TransactionSerializerInterceptor";
+import RequestWithUser from "../authentication/RequestWithUser";
+import { TransactionSerializerInterceptor } from "../lib/TransactionSerializerInterceptor";
 import ParticipateTxDto from "./ParticipateTx.dto";
 import { ParticipationService } from "./participation.service";
 import SendParticipateTxDto from "./SendParticipateTx.dto";

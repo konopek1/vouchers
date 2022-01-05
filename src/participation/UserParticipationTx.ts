@@ -1,4 +1,4 @@
-import { SerializedAtomicAsaTx } from "src/payment/AtomicAsaTx";
+import { SerializedAtomicAsaTx } from "../payment/AtomicAsaTx";
 
 export class UserParticipationTx implements SerializedAtomicAsaTx {
     checkLevelTx: number[];
