@@ -1,0 +1,4 @@
+- [ ] Dodać Integrację z CyberID
+- [ ] Dodać czas w smart kontraktach
+- [ ] Usunąć jedną zbędną transakcje
+- [ ] Dodać uwierzytelnianie do wypisanych atrybutów

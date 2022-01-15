@@ -1,3 +1,4 @@
+import { HttpException } from "@nestjs/common";
 import { fromBase64, toBase64 } from "../lib/Helpers";
 
 export class ParticipationToken {
@@ -12,6 +13,8 @@ export class ParticipationToken {
         const decodedToken = fromBase64(encodedToken);
 
         const [userID, asaID] = decodedToken.split(ParticipationToken.SPLIT_SIGN);
+
+        if (userID === '' || asaID === '') throw new HttpException("Bad token", 400)
 
         return new ParticipationToken(Number(userID), asaID);
     }

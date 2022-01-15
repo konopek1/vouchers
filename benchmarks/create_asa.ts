@@ -1,32 +1,18 @@
-import { INestApplication, ValidationPipe } from "@nestjs/common";
-import { NestApplication, NestFactory } from "@nestjs/core";
-import { generateAccount, makeLogicSig, mnemonicToSecretKey, OnApplicationComplete, secretKeyToMnemonic, signTransaction } from 'algosdk';
+import { INestApplication } from "@nestjs/common";
+import { makeLogicSig, mnemonicToSecretKey, OnApplicationComplete, secretKeyToMnemonic, signTransaction } from 'algosdk';
 import { AsaService } from "../src/asa/asa.service";
-import createWalletFromMnemonic from "../src/consoleScripts/createWalletFromMnemonic";
-import { UserService } from "../src/user/user.service";
-import { AppModule } from "../src/app.module";
 import { PaymentService } from "../src/payment/payment.service";
 import { ContractService } from "../src/contract/contract.service";
-import Benchmark from "./benchmark";
 
-const ADMIN_MEMO = "path load rude spray grid border assume icon mushroom prison curious curious skate tag between plate matter reduce mechanic industry diagram tragic solve absent retreat";
+export const randomString = () => Math.ceil(Math.random() * 10000000).toString();
 
-async function setup() {
-    const app = await NestFactory.create(AppModule);
-
-    await app.init();
-
-    return app;
-}
-
-async function createAsa(app: INestApplication) {
-    const userService = app.get(UserService);
+export async function createAsa(app: INestApplication, memo) {
     const asaService = app.get(AsaService);
     const contractService = app.get(ContractService);
     const paymentService = app.get(PaymentService);
 
     // await userService.createAdmin("admin123@mail.com", "password", wallet);
-    const adminAccount = mnemonicToSecretKey(ADMIN_MEMO);
+    const adminAccount = mnemonicToSecretKey(memo);
 
     // create asa
     const createdAsaTx = await asaService.createAsaTx({
@@ -35,7 +21,7 @@ async function createAsa(app: INestApplication) {
         freeze: adminAccount.addr,
         manager: adminAccount.addr,
         reserve: adminAccount.addr,
-        assetName: Math.ceil(Math.random() * 1000).toString(),
+        assetName: randomString(),
         assetURL: "www.wat.edu.pl",
         totalIssuance: 21_000_000,
         unitName: "BTC",
@@ -83,21 +69,6 @@ async function createAsa(app: INestApplication) {
     const sSetLevelTx = signTransaction(setLevelTx, adminAccount.sk);
 
     await asaService.addSupplier(sOptInTx, sSetLevelTx);
+
+    return asa;
 }
-
-
-async function benchmark(app: INestApplication) {
-    const benchmark = new Benchmark(() => createAsa(app));
-
-    const results = await benchmark.run(10);
-
-    console.table(results)
-    console.table(benchmark.results)
-    console.log(`Mediana czasów w sekundach: ${benchmark.med()}`);
-}
-
-setup()
-    .then(benchmark)
-    .then(console.log)
-    .catch(console.log)
-    .finally(() => process.exit(0))
