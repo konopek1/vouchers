@@ -15,6 +15,10 @@ import AssetConfigDto from "./AssetConfig.dto";
 import { OwnedByUserAsasDto } from "./OwnedByUser.dto";
 import SignedTxDto from "./SignedTx.dto";
 import UpdateAsaDto from "./UpdateAsa.dto";
+import { AsaCreateDto, AttributeDto } from "./AsaCreate.dto";
+import { AttributesService } from "../attribute/attributes.service";
+import Attributes from "src/attribute/attributes.module";
+import Attribute from "src/attribute/attribute.entity";
 
 @Injectable()
 export class AsaService {
@@ -28,8 +32,8 @@ export class AsaService {
     ) {
     }
 
-    async getByIDOrFail(id: number) {
-        return await this.asaRepository.findOneOrFail(id, { relations: ['whitelist'] });
+    async getByIDOrFail(id: number, relations: string[] = ['whitelist']) {
+        return await this.asaRepository.findOneOrFail(id, { relations });
     }
 
     async getByAppIDOrFail(appID: number) {
@@ -84,11 +88,13 @@ export class AsaService {
         return asa;
     }
 
-    public async createAsa(signedAsaTx: TxSig): Promise<Asa> {
+    public async createAsa({ txSig, attributes }: AsaCreateDto): Promise<Asa> {
 
-        const response = await this.algorandService.sendSignedTx(signedAsaTx);
+        const response = await this.algorandService.sendSignedTx(txSig);
 
-        const decodedAsaTx = algosdk.decodeSignedTransaction(signedAsaTx.blob).txn;
+        const decodedAsaTx = algosdk.decodeSignedTransaction(txSig.blob).txn;
+
+        const requiredAttributes = this.parseAttributes(attributes);
 
         const newAsa = this.asaRepository.create({
             asaID: response["asset-index"],
@@ -97,9 +103,32 @@ export class AsaService {
             unitName: decodedAsaTx.assetUnitName,
             manager: encodeAddress(decodedAsaTx.assetManager.publicKey),
             clawback: encodeAddress(decodedAsaTx.assetClawback.publicKey),
+            requiredAttributes
         })
 
+
         return await this.asaRepository.save(newAsa);
+    }
+
+    private parseAttributes(attributesDto: AttributeDto[]): Attribute[] {
+        const newAttributes = [];
+
+        for (const attributeDto of attributesDto) {
+            const attribute: Attribute = {
+                name: attributeDto.name,
+                description: attributeDto.description,
+                kind: attributeDto.kind,
+                constraints: {
+                    comparator: attributeDto.operator,
+                    value: attributeDto.value,
+                    valueType: attributeDto.valueType
+                }
+            }
+
+            newAttributes.push(attribute);
+        }
+
+        return newAttributes;
     }
 
     // TODO other suppliers can be added here

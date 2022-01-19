@@ -1,12 +1,14 @@
 # Backend
 
-- [ ] oAuth 2.0 z CyberID
+- [x] oAuth 2.0 z CyberID
 - [ ] Dodać uwierzytelnianie do wypisanych atrybutów
-- [ ] Dodać czas w smart kontraktach
-- [ ] Usunąć jedną zbędną transakcje
 - [ ] Endpoint do pobrania atrybutow
 - [ ] Encja atrybutow
 - [ ] Dodanie encji typu atrybutu
+
+- [ ] Dodać czas w smart kontraktach
+- [ ] Usunąć jedną zbędną transakcje
+
 - [ ] Dodac endpoint do zglaszania kandydatury - malo wazne
 - [ ] Dodac enpoint do akceptowania kandydatury - malo wazne
 

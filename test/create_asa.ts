@@ -34,7 +34,7 @@ export async function createAsa(app: INestApplication, memo) {
 
     const sCreateAsaTx = signTransaction(createdAsaTx, adminAccount.sk);
 
-    const asa = await asaService.createAsa(sCreateAsaTx);
+    const asa = await asaService.createAsa({ txSig: sCreateAsaTx, attributes: [] });
 
     const asaId = asa.id;
 

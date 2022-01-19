@@ -53,9 +53,9 @@ export async function distribute(app: INestApplication, entityAsaID: number, mem
         contractService.sendOptInTx(sOptInContractTx),
     ])
 
-    const toSign = await distributeService.makeParticipateTx({ encodedToken: token, from: supplierAccount.addr, amount: 100 });
+    const toSign = await distributeService.makeParticipateTxByToken({ encodedToken: token, from: supplierAccount.addr, amount: 100 });
 
-    await distributeService.participateUser({
+    await distributeService.sendParticipateTx({
         asaTransferTx: decodeUnsignedTransaction(Uint8Array.from(toSign.asaTransferTx)),
         checkLevelSigTx: signTransaction(decodeTx(toSign.checkLevelTx), supplierAccount.sk),
         paymentSigTx: signTransaction(decodeTx(toSign.paymentTx), supplierAccount.sk),

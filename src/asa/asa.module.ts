@@ -14,6 +14,6 @@ import { AsaService } from "./asa.service";
     imports: [AlgorandModule, TypeOrmModule.forFeature([Asa]), AuthenticationModule, ContractModule, UserModule, WalletModule],
     providers: [AsaService, TransactionSerializerInterceptor],
     controllers: [AsaController],
-    exports: []
+    exports: [AsaService]
 })
 export class AsaModule { }

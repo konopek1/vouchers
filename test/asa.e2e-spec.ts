@@ -8,7 +8,7 @@ import { UserService } from '../src/user/user.service';
 import { transfer } from './transfer_asa';
 import { ContractService } from '../src/contract/contract.service';
 import { signTransaction } from 'algosdk';
-import { Asa } from 'src/asa/asa.entity';
+import { Asa } from '../src/asa/asa.entity';
 
 describe('Voucher spec', () => {
   jest.setTimeout(300_000);

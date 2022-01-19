@@ -1,6 +1,7 @@
 import { Exclude } from "class-transformer";
 import User from "../user/user.entity";
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import Attribute from "../attribute/attribute.entity";
 
 @Entity()
 export class Asa {
@@ -36,6 +37,9 @@ export class Asa {
     @ManyToMany(() => User)
     @JoinTable()
     whitelist: User[];
+
+    @OneToMany(() => Attribute, (attribute) => attribute.asa)
+    requiredAttributes: Attribute[];
 
     @Column({ nullable: true })
     escrowContract: string;

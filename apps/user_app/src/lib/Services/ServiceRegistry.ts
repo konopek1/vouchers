@@ -4,6 +4,7 @@ import { createAxiosInstance } from '../AxiosInstance';
 import { AsaService } from './AsaService';
 import AuthService from './AuthService';
 import { ContractService } from './ContractService';
+import { OAuthService } from './OAuthService';
 import { ParticipationService } from './ParticipationService';
 import { PaymentService } from './PaymentService';
 import { Service } from './Service';
@@ -61,7 +62,8 @@ export const ServiceRegistryContext = createContext<ServiceRegistry | null>(Serv
     ContractService,
     AuthService,
     ParticipationService,
-    UserService
+    UserService,
+    OAuthService
 ));
 
 

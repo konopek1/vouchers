@@ -6,6 +6,7 @@ import OptInTxDto from "../contract/OptInTx.dto";
 import { TransactionSerializerInterceptor } from "../lib/TransactionSerializerInterceptor";
 import User from "../user/user.entity";
 import { AsaService } from "./asa.service";
+import { AsaCreateDto } from "./AsaCreate.dto";
 import AssetConfigDto from "./AssetConfig.dto";
 import SignedTxDto from "./SignedTx.dto";
 import { SupplierTx } from "./SupplierTx";
@@ -42,7 +43,7 @@ export class AsaController {
 
     @UseGuards(AuthGuard('admin'))
     @Post('/create')
-    public async create(@Body() signedTx: SignedTxDto) {
+    public async create(@Body() signedTx: AsaCreateDto) {
         return await this.asaService.createAsa(signedTx);
     }
 

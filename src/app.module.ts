@@ -4,6 +4,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AlgorandModule } from './algorand/algorand.module';
 import { AsaModule } from './asa/asa.module';
+import Attributes from './attribute/attributes.module';
 import { DatabaseModule } from './database/database.module';
 import { LoggerMiddleware } from './lib/Logger.middleware';
 import { ParticipationModule } from './participation/participation.module';
@@ -33,7 +34,7 @@ const validationSchema = Joi.object({
 });
 
 @Module({
-  imports: [AlgorandModule, ConfigModule.forRoot({ validationSchema }), DatabaseModule, AsaModule, PaymentModule, WalletModule, ParticipationModule, UserModule,
+  imports: [AlgorandModule, ConfigModule.forRoot({ validationSchema }), DatabaseModule, PaymentModule, WalletModule, UserModule, Attributes, ParticipationModule,
     ServeStaticModule.forRoot(
       {
         rootPath: join(__dirname, '..', 'apps/admin_app/build'),
@@ -43,10 +44,8 @@ const validationSchema = Joi.object({
       {
         rootPath: join(__dirname, '..', 'apps/user_app/build'),
       },
-    ),
+    )
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
