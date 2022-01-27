@@ -12,6 +12,7 @@ import { Repository } from "typeorm";
 import { AppArg, AppArgs, argToUint64 } from "./AppArgs";
 import OptInTxDto from "./OptInTx.dto";
 import PoiContractDto from "./PoiContract.dto";
+import { assert } from "console";
 const parseTemplate = require("string-template");
 
 @Injectable()
@@ -86,7 +87,8 @@ export class ContractService {
 
         const escrowTeal = parseTemplate(escrowTealTemplate, {
             asaID: asa.asaID,
-            appID: asa.appID
+            appID: asa.appID,
+            roundNumber: await this.calculateExpireRoundNumber(asa.expireDate),
         });
 
         const compiledEscrow = await this.algorandService.compile(escrowTeal);
@@ -98,6 +100,18 @@ export class ContractService {
         await this.fundEscrow(compiledEscrow.result);
 
         return compiledEscrow;
+    }
+
+    private async calculateExpireRoundNumber(expireTimestamp: number): Promise<number> {
+        const roundTime = 4500;
+        const currentRound = await this.algorandService.getCurrentRound();
+
+        const now = (new Date()).getTime();
+
+        assert(expireTimestamp > now, `Wrong expire date, now: ${expireTimestamp} ${now}`);
+        const roundsToPass = (expireTimestamp - now) / roundTime;
+
+        return currentRound + Math.ceil(roundsToPass);
     }
 
     private async fundEscrow(compiledEscrow: string): Promise<void> {

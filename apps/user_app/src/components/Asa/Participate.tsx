@@ -7,9 +7,9 @@ import {
 } from '@material-ui/core';
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 import { generateAccount } from 'algosdk';
-import React, { Fragment, useContext, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { securePrompt } from '../../lib/SecurePrompt';
-import { AsaService } from '../../lib/Services/AsaService';
+import { AsaService, Attributes } from '../../lib/Services/AsaService';
 import { OAuthService } from '../../lib/Services/OAuthService';
 import { useService } from '../../lib/Services/useService';
 import KeyStorage from '../../lib/Storage/KeyStorage';
@@ -33,6 +33,14 @@ export const Participate: React.FC<ParticipateProps> = ({ asaID }) => {
   const oauthService = useService<OAuthService>(OAuthService);
   const asaService = useService<AsaService>(AsaService);
 
+  const [attrList, setAttrList] = useState<Attributes[]>([]);
+
+  useEffect(() => {
+    asaService.getRequiredAttributes(asaID).then(setAttrList);
+
+    return () => {};
+  }, []);
+
   const onOptIn = async () => {
     setOpen(true);
   };
@@ -48,7 +56,11 @@ export const Participate: React.FC<ParticipateProps> = ({ asaID }) => {
       securePrompt('Password for private key:'),
     );
 
-    await asaService.optIn(asaID, addr, sk);
+    const promise = asaService.optIn(asaID, addr, sk);
+
+    alert('Now you will be redirect (it may take a while)');
+
+    await promise;
 
     const { url } = await oauthService.redirect(asaID, user!.id);
 
@@ -74,15 +86,18 @@ export const Participate: React.FC<ParticipateProps> = ({ asaID }) => {
         onClose={handleClose}
         aria-labelledby="customized-dialog-title"
         open={open}
+        fullScreen
       >
         <DialogTitle id="customized-dialog-title" onClose={handleClose}>
           Attributes authorization
         </DialogTitle>
         <DialogContent>
           <Box>
-            {`Now you will be redirected to CyberID, where you will authorize your attributes:`}
+            {`Now you will be redirected to CyberID, where you will you will be requested to share this attributes:`}
             <br></br>
-            {'- age > 18'}
+            {attrList.map((attr) => (
+              <li>{`${attr.type.name} ${attr.type.description}, to fulfil your ${attr.type.kind} have to be ${attr.comparator}  ${attr.value}`}</li>
+            ))}
             <br></br>
             <Button onClick={onConfirm} color="primary">
               Ok

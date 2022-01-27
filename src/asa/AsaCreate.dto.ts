@@ -1,29 +1,19 @@
 import { Type } from "class-transformer";
-import { IsArray, ValidateNested, IsString, IsNotEmpty, IsEnum, IsIn } from "class-validator";
-import { AttributeKind, Comparator, ValueType } from "../attribute/attribute.entity";
+import { IsArray, ValidateNested, IsNotEmpty, IsInt, IsString, IsDateString } from "class-validator";
 import SignedTxDto from "./SignedTx.dto";
 
 export class AttributeDto {
-    @IsString()
+    @IsInt()
     @IsNotEmpty()
-    name: string
-
-    @IsString()
-    @IsNotEmpty()
-    description: string
-
-    @IsEnum(AttributeKind)
-    kind: AttributeKind;
-
-    @IsIn(["<", ">", "="])
-    operator: Comparator;
+    id: number;
 
     @IsString()
     @IsNotEmpty()
     value: string;
 
-    @IsIn(["string", "number"])
-    valueType: ValueType;
+    @IsString()
+    @IsNotEmpty()
+    comparator: string;
 }
 
 export class AsaCreateDto {
@@ -36,6 +26,9 @@ export class AsaCreateDto {
     @ValidateNested({ each: true })
     @Type(() => AttributeDto)
     attributes: AttributeDto[];
+
+    @IsString()
+    expireDate: string;
 }
 
 

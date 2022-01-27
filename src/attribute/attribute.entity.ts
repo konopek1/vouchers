@@ -15,9 +15,6 @@ export default class Attribute {
     @Column()
     public kind: AttributeKind;
 
-    @ManyToOne(() => Asa)
-    public asa?: Asa;
-
     @Column({ type: 'jsonb' })
     public constraints: SimpleConstraints;
 
@@ -28,8 +25,7 @@ export type ValueType = 'string' | 'number';
 export type Comparator = '<' | '>' | '=';
 
 export interface SimpleConstraints {
-    comparator: Comparator,
-    value: string,
+    availableComparators: Comparator[],
     valueType: ValueType
 }
 

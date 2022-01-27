@@ -11,7 +11,6 @@ export async function createAsa(app: INestApplication, memo) {
     const contractService = app.get(ContractService);
     const paymentService = app.get(PaymentService);
 
-    // await userService.createAdmin("admin123@mail.com", "password", wallet);
     const adminAccount = mnemonicToSecretKey(memo);
 
     // create asa

@@ -1,10 +1,13 @@
 import {
   Box,
   Button,
+  InputLabel,
   LinearProgress,
   makeStyles,
+  Select,
   TextField,
   Typography,
+  MenuItem,
 } from '@material-ui/core';
 import { useFormik } from 'formik';
 import React, { useContext, useRef, useState } from 'react';
@@ -15,12 +18,15 @@ import { useService } from '../../lib/Services/useService';
 import KeyStorage, { DEFAULT_WALLET } from '../../lib/Storage/KeyStorage';
 import { keyStoreContext } from '../../lib/Storage/UseKeyStore';
 import { toastContext } from '../Main/Toast';
+import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 
 export interface CreateAsaFormDto {
   assetName: string;
   assetURL: string;
   totalIssuance: number;
   unitName: string;
+  attributes: { id: number; value: string; comparator: string }[];
+  expireDate: string;
 }
 
 const INITIAL_STATE: CreateAsaFormDto = {
@@ -28,6 +34,8 @@ const INITIAL_STATE: CreateAsaFormDto = {
   assetURL: '',
   totalIssuance: 21000000,
   unitName: '',
+  attributes: [],
+  expireDate: '',
 };
 
 export const CreateAsaForm: React.FC = () => {
@@ -39,6 +47,10 @@ export const CreateAsaForm: React.FC = () => {
 
   const [error, setError] = useState<Error | null>(null);
 
+  const [attrs, setAttrs] = useState([0]);
+
+  const addAttr = () => setAttrs([...attrs, ++attrs[attrs.length - 1]]);
+
   const progressValue = useRef(0);
   const [progress, setProgress] = useState(progressValue.current);
   const makeProgress = (percentage: number) => {
@@ -48,6 +60,7 @@ export const CreateAsaForm: React.FC = () => {
 
   const onSubmit = async (form: CreateAsaFormDto) => {
     try {
+      console.log(form);
       setError(null);
       const [pk, sk] = keyStorage.getAccountKeys(
         DEFAULT_WALLET,
@@ -65,6 +78,8 @@ export const CreateAsaForm: React.FC = () => {
           assetURL: form.assetURL,
           totalIssuance: Number(form.totalIssuance),
           unitName: form.unitName,
+          attributes: form.attributes,
+          expireDate: form.expireDate,
         },
         sk,
         makeProgress,
@@ -81,7 +96,6 @@ export const CreateAsaForm: React.FC = () => {
 
   const form = useFormik({
     initialValues: INITIAL_STATE,
-    //TODO add validation schema
     validationSchema: yup.object(),
     onSubmit,
   });
@@ -93,7 +107,7 @@ export const CreateAsaForm: React.FC = () => {
         margin="auto"
         textAlign="center"
         mb={5}
-        maxWidth="60%"
+        // maxWidth="60%"
       >
         {error && (
           <Typography variant="caption" color="error">
@@ -111,7 +125,6 @@ export const CreateAsaForm: React.FC = () => {
             name="unitName"
             label="Unit name"
             type="text"
-            variant="outlined"
             value={form.values.unitName}
             onChange={form.handleChange}
             error={form.touched.unitName && Boolean(form.errors.unitName)}
@@ -125,7 +138,6 @@ export const CreateAsaForm: React.FC = () => {
             name="assetName"
             label="Voucher name"
             type="text"
-            variant="outlined"
             value={form.values.assetName}
             onChange={form.handleChange}
             error={form.touched.assetName && Boolean(form.errors.assetName)}
@@ -139,7 +151,6 @@ export const CreateAsaForm: React.FC = () => {
             name="assetURL"
             label="Voucher URL"
             type="text"
-            variant="outlined"
             value={form.values.assetURL}
             onChange={form.handleChange}
             error={form.touched.assetURL && Boolean(form.errors.assetURL)}
@@ -153,7 +164,6 @@ export const CreateAsaForm: React.FC = () => {
             name="totalIssuance"
             label="Number of tokens"
             type="number"
-            variant="outlined"
             value={form.values.totalIssuance}
             onChange={form.handleChange}
             error={
@@ -165,14 +175,27 @@ export const CreateAsaForm: React.FC = () => {
 
         <Box mb={2}>
           <TextField
-            id="date"
+            id="expireDate"
+            name="expireDate"
             label="Expiration date"
             type="date"
             variant="outlined"
-            // defaultValue="2017-05-24"
+            onChange={form.handleChange}
             InputLabelProps={{
               shrink: true,
             }}
+          />
+        </Box>
+
+        {attrs.map((id) => (
+          <AttributeInput form={form} id={id}></AttributeInput>
+        ))}
+
+        <Box mb={2}>
+          <Button
+            startIcon={<LibraryAddIcon />}
+            onClick={addAttr}
+            color="primary"
           />
         </Box>
 
@@ -198,6 +221,50 @@ function LinearProgressWithLabel(props: { value: number }) {
     </Box>
   ) : (
     <Box></Box>
+  );
+}
+
+function AttributeInput({ id, form }: { id: number; form: any }) {
+  return (
+    <Box mb={2}>
+      <InputLabel shrink htmlFor={`attributes${id}kind`}>
+        {`Attribute ${id}`}
+      </InputLabel>
+      <Select
+        displayEmpty
+        id={`attributes[${id}].id`}
+        name={`attributes[${id}].id`}
+        onChange={form.handleChange}
+      >
+        <MenuItem value="" disabled selected>
+          Attribute kind
+        </MenuItem>
+        <MenuItem value={1}>Age</MenuItem>
+        <MenuItem value={2}>Zip-code</MenuItem>
+      </Select>
+
+      <Select
+        displayEmpty
+        id={`attributes[${id}].comparator`}
+        name={`attributes[${id}].comparator`}
+        onChange={form.handleChange}
+      >
+        <MenuItem value="" disabled>
+          Comparator
+        </MenuItem>
+        <MenuItem value={'<'}>{'<'}</MenuItem>
+        <MenuItem value={'>'}>{'>'}</MenuItem>
+        <MenuItem value={'='}>{'='}</MenuItem>
+      </Select>
+
+      <TextField
+        id={`attributes[${id}].value`}
+        name={`attributes[${id}].value`}
+        type="text"
+        onChange={form.handleChange}
+        value={form[`attributes[${id}].value`]}
+      />
+    </Box>
   );
 }
 

@@ -4,6 +4,10 @@ import { ContractService } from "./ContractService";
 import { PaymentService } from "./PaymentService";
 import { Service } from "./Service";
 
+export interface Attributes {
+    type: { name: string, description: string, kind: string }, value: string, comparator: string
+}
+
 export class AsaService extends Service {
 
     protected readonly route = '/asa';
@@ -54,6 +58,10 @@ export class AsaService extends Service {
 
     public async makeOptInTx(optInTxDto: OptInTxDto): Promise<Transaction> {
         return (await this.client.post(this.MAKE_OPT_IN_TX, optInTxDto)).data;
+    }
+
+    public async getRequiredAttributes(asaId: number): Promise<Attributes[]> {
+        return (await this.client.get(`/attributes/${asaId}/required`)).data;
     }
 
 

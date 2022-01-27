@@ -26,7 +26,13 @@ txn GroupIndex
 int 1
 ==
 &&
+// check if transaction havent ended yet
+txn FirstValid
+int {roundNumber}
+<
+&&
 bz failed
+
 
 
 // check no rekeying etc
@@ -67,6 +73,8 @@ global ZeroAddress
 &&
 bz failed
 
+
+// check 
 
 
 //vette first transaction

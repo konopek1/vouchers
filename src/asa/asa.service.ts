@@ -17,8 +17,8 @@ import SignedTxDto from "./SignedTx.dto";
 import UpdateAsaDto from "./UpdateAsa.dto";
 import { AsaCreateDto, AttributeDto } from "./AsaCreate.dto";
 import { AttributesService } from "../attribute/attributes.service";
-import Attributes from "src/attribute/attributes.module";
-import Attribute from "src/attribute/attribute.entity";
+import RequiredAttribute from "src/attribute/required_attribute.entity";
+import Attribute, { Comparator } from "src/attribute/attribute.entity";
 
 @Injectable()
 export class AsaService {
@@ -26,6 +26,8 @@ export class AsaService {
         private readonly algorandService: AlgorandService,
         @InjectRepository(Asa)
         private readonly asaRepository: Repository<Asa>,
+        @InjectRepository(RequiredAttribute)
+        private readonly attrRepository: Repository<RequiredAttribute>,
         private readonly walletService: WalletService,
         private readonly userService: UserService,
         private readonly contractService: ContractService,
@@ -88,13 +90,11 @@ export class AsaService {
         return asa;
     }
 
-    public async createAsa({ txSig, attributes }: AsaCreateDto): Promise<Asa> {
+    public async createAsa({ txSig, attributes, expireDate }: AsaCreateDto): Promise<Asa> {
 
         const response = await this.algorandService.sendSignedTx(txSig);
 
         const decodedAsaTx = algosdk.decodeSignedTransaction(txSig.blob).txn;
-
-        const requiredAttributes = this.parseAttributes(attributes);
 
         const newAsa = this.asaRepository.create({
             asaID: response["asset-index"],
@@ -103,33 +103,29 @@ export class AsaService {
             unitName: decodedAsaTx.assetUnitName,
             manager: encodeAddress(decodedAsaTx.assetManager.publicKey),
             clawback: encodeAddress(decodedAsaTx.assetClawback.publicKey),
-            requiredAttributes
+            attributes: await this.createRequiredAttributes(attributes),
+            expireDate: (new Date(expireDate)).getTime()
         })
-
 
         return await this.asaRepository.save(newAsa);
     }
 
-    private parseAttributes(attributesDto: AttributeDto[]): Attribute[] {
-        const newAttributes = [];
-
-        for (const attributeDto of attributesDto) {
-            const attribute: Attribute = {
-                name: attributeDto.name,
-                description: attributeDto.description,
-                kind: attributeDto.kind,
-                constraints: {
-                    comparator: attributeDto.operator,
-                    value: attributeDto.value,
-                    valueType: attributeDto.valueType
+    private async createRequiredAttributes(attrDto: AttributeDto[]) {
+        return Promise.all(
+            attrDto.map(
+                dto => {
+                    const r = new RequiredAttribute();
+                    r.comparator = dto.comparator as Comparator;
+                    r.value = dto.value;
+                    const type = new Attribute();
+                    type.id = dto.id;
+                    r.type = type;
+                    return this.attrRepository.save(r);
                 }
-            }
-
-            newAttributes.push(attribute);
-        }
-
-        return newAttributes;
+            )
+        )
     }
+
 
     // TODO other suppliers can be added here
     public async createUpdateAsaTx(updateAsaDto: UpdateAsaDto) {

@@ -18,6 +18,12 @@ export default class AlgorandService {
     return this.algorandClient.client.getTransactionParams().do();
   }
 
+  async getCurrentRound(): Promise<number> {
+    const algoStatus = await this.algorandClient.client.status().do();
+
+    return algoStatus["last-round"];
+  }
+
   async sendSignedTx(signedTx: TxSig): Promise<ConfirmedTxInfo> {
     let rv;
 

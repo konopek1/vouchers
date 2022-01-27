@@ -40,7 +40,7 @@ export class AsaService extends Service {
         return (await this.client.post(this.MAKE_CREATE_TX, createAsaTxDto)).data;
     }
 
-    public async sendCreateTx(signedCreateTx: TxSig): Promise<Asa> {
+    public async sendCreateTx(signedCreateTx: any): Promise<Asa> {
         return (await this.client.post(this.SEND_CREATE, signedCreateTx)).data;
     }
 
@@ -77,7 +77,7 @@ export class AsaService extends Service {
 
         const createdAsaTx = await this.makeCreateTx(createAsaDto);
         const signedCreateAsaTx = signTransaction(createdAsaTx, sk);
-        const asa = await this.sendCreateTx(signedCreateAsaTx);
+        const asa = await this.sendCreateTx({ txSig: signedCreateAsaTx, attributes: createAsaDto.attributes, expireDate: createAsaDto.expireDate });
 
         progress(20);
 
@@ -136,7 +136,9 @@ export interface CreateAsaTxDto {
     manager: string,
     unitName: string,
     assetName: string,
-    assetURL: string
+    assetURL: string,
+    attributes: { id: number, value: string, comparator: string }[],
+    expireDate: string
 }
 
 export interface Asa {

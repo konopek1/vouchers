@@ -12,6 +12,7 @@ export default class AlgorandClient {
       this.configService.get('ALGORAND_URL'),
       this.configService.get('ALGORAND_PORT'),
     );
+
   }
 
   public async waitForConfirmation(txId: string): Promise<ConfirmedTxInfo> {

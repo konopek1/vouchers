@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AlgorandModule } from './algorand/algorand.module';
-import { AsaModule } from './asa/asa.module';
 import Attributes from './attribute/attributes.module';
 import { DatabaseModule } from './database/database.module';
 import { LoggerMiddleware } from './lib/Logger.middleware';

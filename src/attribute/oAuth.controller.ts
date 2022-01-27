@@ -12,7 +12,7 @@ const SCOPE = "phone_numbers";
 const MY_URL = "http://20.82.90.82:8080";
 
 const MOCK_ATTRIBUTES = {
-    'valid': {
+    valid: {
         age: 20,
         zipCode: '05-075',
     }
@@ -31,15 +31,19 @@ export default class oAuthController {
 
     @Get('flow/:asaId/:userId')
     async flow(@Query('code') code: string, @Param('asaId') asaEntityID: number, @Param('userId') userId: number, @Res() res) {
-        const response = await this.http.post(this.oAuthCyberCodeUrl(code, asaEntityID, userId)).toPromise();
+        const response = await this.http.post(`${CYBER_URI}/oauth2/token`, {
+            "client_id": CYBER_USER,
+            "code": code,
+            "redirect_uri": this.oAuthCyberRedirectUrl(asaEntityID, userId),
+            "grant_type": "authorization_code",
+            "client_secret": "abc"
+        }).toPromise();
 
         Logger.debug(`Received data from CyberID ${JSON.stringify(response.data, undefined, 4)}`, oAuthController.name);
 
-        const requiredAttributes = await this.attributesService.getAttributesByAsa(asaEntityID);
+        const requiredAttributes = await this.attributesService.getRequiredByAsaEntityID(asaEntityID);
 
-        const isPositive = await this.attributeChecker.check(requiredAttributes, MOCK_ATTRIBUTES);
-
-        console.log(isPositive);
+        const isPositive = await this.attributeChecker.check(requiredAttributes, MOCK_ATTRIBUTES.valid);
 
         if (isPositive) {
             await this.participationService.participateUser(userId, asaEntityID, 100);
@@ -50,14 +54,9 @@ export default class oAuthController {
 
     @Get('redirect/:asaId/:userId')
     redirectUri(@Param('asaId') asaId: number, @Param('userId') userId: number) {
-        const url = `${CYBER_URI}/oauth2/auth?client_id=${CYBER_USER}&redirect_uri=${this.oAuthCyberRedirectUrl(asaId, userId)}&response_type=code&scope=${SCOPE}&nonce=${NONCE}"&loa=${LOA}`;
+        const url = `${CYBER_URI}/oauth2/auth?client_id=${CYBER_USER}&redirect_uri=${this.oAuthCyberRedirectUrl(asaId, userId)}&response_type=code&scope=${SCOPE}&nonce=${NONCE}&loa=${LOA}`;
 
         return Promise.resolve({ url })
-    }
-
-
-    oAuthCyberCodeUrl(code: string, asaId: number, userId: number): string {
-        return `${CYBER_URI}/oauth2/token?client_id=${CYBER_USER}&redirect_uri=${this.oAuthCyberRedirectUrl(asaId, userId)}&grant_type=authorization_code&response_type=id&scope=${SCOPE}&code=${code}`;
     }
 
 

@@ -1,6 +1,7 @@
 import { Optional } from "@nestjs/common";
 import { Transform, Type } from "class-transformer";
-import { IsArray, IsBoolean, IsEnum, IsIn, IsNotEmpty, IsNumber, IsString, IsUrl, Length, Max, Min, ValidateNested } from "class-validator";
+import { IsBoolean, IsNumber, IsString, IsUrl, Length, Max, Min, } from "class-validator";
+
 
 export default class AssetConfigDto {
 
@@ -53,6 +54,8 @@ export default class AssetConfigDto {
 
     @Optional()
     assetMetadataHash: string = undefined;
+
+
 }
 
 

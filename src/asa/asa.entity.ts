@@ -1,7 +1,7 @@
 import { Exclude } from "class-transformer";
 import User from "../user/user.entity";
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import Attribute from "../attribute/attribute.entity";
+import RequiredAttribute from "src/attribute/required_attribute.entity";
 
 @Entity()
 export class Asa {
@@ -38,9 +38,12 @@ export class Asa {
     @JoinTable()
     whitelist: User[];
 
-    @OneToMany(() => Attribute, (attribute) => attribute.asa)
-    requiredAttributes: Attribute[];
+    @OneToMany(() => RequiredAttribute, attr => attr.asa)
+    attributes: RequiredAttribute[];
 
     @Column({ nullable: true })
     escrowContract: string;
+
+    @Column({ nullable: true, type: "bigint" })
+    expireDate: number;
 }

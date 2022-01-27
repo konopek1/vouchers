@@ -1,21 +1,18 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import Attribute from "./attribute.entity";
+import RequiredAttribute from "./required_attribute.entity";
 
 @Injectable()
 export default class AttributeCheckerService {
 
-    constructor() { }
-
-
-    async check(requiredAttributes: Attribute[], attributes: any): Promise<boolean> {
-        return requiredAttributes.every(a => this.isAttributeAuthorized(a, attributes))
+    async check(requiredAttributes: RequiredAttribute[], attributes: Record<string, string | number>): Promise<boolean> {
+        return requiredAttributes.every(r => this.isAttributeAuthorized(r, attributes))
     }
 
 
-    private isAttributeAuthorized(attribute: Attribute, authorizedAttributes: any): boolean {
-        const given = authorizedAttributes[attribute.kind];
+    private isAttributeAuthorized(attribute: RequiredAttribute, authorizedAttributes: any): boolean {
+        const given = authorizedAttributes[attribute.type.kind];
 
-        switch (attribute.constraints.valueType) {
+        switch (attribute.type.constraints.valueType) {
             case "number":
                 if (typeof given !== "number") throw new HttpException(`Wrong type of attribute should be number but is ${typeof given}`, HttpStatus.BAD_REQUEST)
                 return this.handleNumberAttribute(attribute, given);
@@ -24,25 +21,25 @@ export default class AttributeCheckerService {
         }
     }
 
-    private handleNumberAttribute(attribute: Attribute, given: number): boolean {
-        switch (attribute.constraints.comparator) {
+    private handleNumberAttribute(requiredAttribute: RequiredAttribute, given: number): boolean {
+        switch (requiredAttribute.comparator) {
             case "<":
-                return given < Number(attribute.constraints.value);
+                return given < Number(requiredAttribute.value);
             case ">":
-                return given > Number(attribute.constraints.value);
+                return given > Number(requiredAttribute.value);
             case "=":
-                return given === Number(attribute.constraints.value);
+                return given === Number(requiredAttribute.value);
             default:
-                throw new HttpException(`Wrong type of comparator ${attribute.constraints.comparator}, should be one of: <,>,=`, HttpStatus.BAD_REQUEST)
+                throw new HttpException(`Wrong type of comparator ${requiredAttribute.comparator}, should be one of: <,>,=`, HttpStatus.BAD_REQUEST)
         }
     }
 
-    private handleStringAttribute(attribute: Attribute, given: string): boolean {
-        switch (attribute.constraints.comparator) {
+    private handleStringAttribute(attribute: RequiredAttribute, given: string): boolean {
+        switch (attribute.comparator) {
             case "=":
-                return given === attribute.constraints.value;
+                return given === attribute.value;
             default:
-                throw new HttpException(`Wrong type of comparator ${attribute.constraints.comparator}, should be one of: ['=']`, HttpStatus.BAD_REQUEST)
+                throw new HttpException(`Wrong type of comparator ${attribute.comparator}, should be one of: ['=']`, HttpStatus.BAD_REQUEST)
         }
     }
 
