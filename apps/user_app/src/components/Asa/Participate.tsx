@@ -14,8 +14,7 @@ import { OAuthService } from '../../lib/Services/OAuthService';
 import { useService } from '../../lib/Services/useService';
 import KeyStorage from '../../lib/Storage/KeyStorage';
 import { keyStoreContext } from '../../lib/Storage/UseKeyStore';
-import { userContext, UserContext, useUser } from '../Auth/useUser';
-import { toastContext } from '../Main/Toast';
+import { useUser } from '../Auth/useUser';
 import { DialogContent, DialogTitle } from './ReceiveDialog';
 
 export interface ParticipateProps {
@@ -24,9 +23,7 @@ export interface ParticipateProps {
 
 export const Participate: React.FC<ParticipateProps> = ({ asaID }) => {
   const [open, setOpen] = useState(false);
-  const { updateUser } = useContext(userContext) as UserContext;
-  const { error } = useContext(toastContext);
-  const { user } = useUser();
+  const { user, updateUser } = useUser();
 
   const keyStore = useContext(keyStoreContext) as KeyStorage;
 
@@ -64,12 +61,13 @@ export const Participate: React.FC<ParticipateProps> = ({ asaID }) => {
 
     const { url } = await oauthService.redirect(asaID, user!.id);
 
+    await updateUser();
+
     document.location.href = url;
   };
 
   const handleClose = () => {
     setOpen(false);
-    updateUser();
   };
 
   return (
@@ -96,7 +94,7 @@ export const Participate: React.FC<ParticipateProps> = ({ asaID }) => {
             {`Now you will be redirected to CyberID, where you will you will be requested to share this attributes:`}
             <br></br>
             {attrList.map((attr) => (
-              <li>{`${attr.type.name} ${attr.type.description}, to fulfil your ${attr.type.kind} have to be ${attr.comparator}  ${attr.value}`}</li>
+              <li>{`${attr.type.name}, to fulfil your attribute ${attr.type.kind} have to ${attr.comparator}  ${attr.value}`}</li>
             ))}
             <br></br>
             <Button onClick={onConfirm} color="primary">

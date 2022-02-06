@@ -15,7 +15,7 @@ export default class KeyStorage {
 
     private initKeyStore(wallets: Wallet[], save: (k: KeysData<PublicKeyData>) => void) {
         const keys = keysFromWallet(wallets);
-        
+
 
         return createStore<PrivateKeyData, PublicKeyData>(save, keys);
     }
@@ -25,7 +25,6 @@ export default class KeyStorage {
         await this.keyStore.saveKey(asaID, password, privateKey, publicKey);
 
         const keysData = await this.keyStore.getRawKeyData(asaID);
-        console.log(keysData);
 
         await this.walletService.addWallet(keysData, Number(asaID));
 
@@ -34,7 +33,7 @@ export default class KeyStorage {
 
     public getAccountKeys(asaID: string, password: string): [string, Uint8Array] {
         const publicKey = this.keyStore.getPublicKeyData(asaID);
-        const privateKey = Uint8Array.from(Buffer.from(this.keyStore.getPrivateKeyData(asaID, password),"base64"));
+        const privateKey = Uint8Array.from(Buffer.from(this.keyStore.getPrivateKeyData(asaID, password), "base64"));
 
         return [publicKey, privateKey];
     }
@@ -42,14 +41,14 @@ export default class KeyStorage {
     public getPublicAddress(asaID: string): string {
         return this.keyStore.getPublicKeyData(asaID);
     }
-    
+
 }
 
 export function keysFromWallet(wallets: Wallet[]): KeysData<PublicKeyData> {
     const keys = wallets.map((w: Wallet) => {
         return {
             metadata: w.metadata,
-            private:  w.encryptedPrivateKey,
+            private: w.encryptedPrivateKey,
             public: w.publicKey
         }
     });

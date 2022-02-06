@@ -24,5 +24,6 @@ export default async function createWalletFromMnemonic(mnemonic: string, passwor
 
 // const wallet = await createWalletFromMnemonic("income shrimp style add able penalty coach tennis blossom van diesel divorce swap increase remember unable logic valley someone animal able sound expect ability ivory", "SecretKey")
 // const userService = app.get('UserService')
-// await  userService.createAdmin("admin@local.com","qazwsx123",wallet)
+// await  userService.createAdmin("admin2@local.com","qazwsx123",wallet)
+
 

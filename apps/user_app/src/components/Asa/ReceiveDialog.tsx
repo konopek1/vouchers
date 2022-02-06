@@ -4,11 +4,16 @@ import Dialog from '@material-ui/core/Dialog';
 import MuiDialogContent from '@material-ui/core/DialogContent';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import IconButton from '@material-ui/core/IconButton';
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
+import {
+  createStyles,
+  Theme,
+  withStyles,
+  WithStyles,
+} from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import React, { useContext, useState } from 'react';
-import { QRCode } from "react-qr-svg";
+import { QRCode } from 'react-qr-svg';
 import KeyStorage from '../../lib/Storage/KeyStorage';
 import { keyStoreContext } from '../../lib/Storage/UseKeyStore';
 import WalletIcon from '@material-ui/icons/AccountBalanceWallet';
@@ -22,7 +27,7 @@ const styles = (theme: Theme) =>
     root: {
       margin: 0,
       padding: theme.spacing(2),
-      paddingRight: '5rem'
+      paddingRight: '5rem',
     },
     closeButton: {
       position: 'absolute',
@@ -43,7 +48,11 @@ export const DialogTitle = withStyles(styles)((props: DialogTitleProps) => {
   return (
     <MuiDialogTitle disableTypography className={classes.root} {...other}>
       <Typography variant="h6">{children}</Typography>
-      <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
+      <IconButton
+        aria-label="close"
+        className={classes.closeButton}
+        onClick={onClose}
+      >
         <CloseIcon />
       </IconButton>
     </MuiDialogTitle>
@@ -53,7 +62,7 @@ export const DialogTitle = withStyles(styles)((props: DialogTitleProps) => {
 export const DialogContent = withStyles((theme: Theme) => ({
   root: {
     padding: theme.spacing(2),
-    textAlign: 'center'
+    textAlign: 'center',
   },
 }))(MuiDialogContent);
 
@@ -62,35 +71,50 @@ const INITIAL_AMOUNT = 10;
 export default function PaymentDialog({ asaID }: QRCodeProps) {
   const [open, setOpen] = useState(false);
   const keyStore = useContext(keyStoreContext) as KeyStorage;
-  const participationService = useService<ParticipationService>(ParticipationService);
+  const participationService = useService<ParticipationService>(
+    ParticipationService,
+  );
   const [token, setToken] = useState('fetching...');
-  const {error} = useContext(toastContext);
+  const { error } = useContext(toastContext);
 
   const [QRCodeValue, setQRCodeValue] = useState({
     publicKey: '',
-    amount: INITIAL_AMOUNT
+    amount: INITIAL_AMOUNT,
   });
 
   const handleClickOpen = () => {
-    participationService.generateToken(Number(asaID)).then(setToken).catch(() => error("Could not fetch token"));
-    
+    participationService
+      .generateToken(Number(asaID))
+      .then(setToken)
+      .catch(() => error('Could not fetch token'));
+
     const publicKey = keyStore.getPublicAddress(asaID);
 
     setQRCodeValue({ ...QRCodeValue, publicKey });
 
-    setOpen(true)
+    setOpen(true);
   };
 
   const handleClose = () => setOpen(false);
 
-  const amountChange = (event: any) => setQRCodeValue({ ...QRCodeValue, amount: event.target.value });
+  const amountChange = (event: any) =>
+    setQRCodeValue({ ...QRCodeValue, amount: event.target.value });
 
   return (
     <div>
-      <Button startIcon={<WalletIcon />} color="primary" variant="contained" onClick={handleClickOpen}>
+      <Button
+        startIcon={<WalletIcon />}
+        color="primary"
+        variant="contained"
+        onClick={handleClickOpen}
+      >
         Receive
       </Button>
-      <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
+      <Dialog
+        onClose={handleClose}
+        aria-labelledby="customized-dialog-title"
+        open={open}
+      >
         <DialogTitle id="customized-dialog-title" onClose={handleClose}>
           Your QR code
         </DialogTitle>
@@ -105,22 +129,12 @@ export default function PaymentDialog({ asaID }: QRCodeProps) {
           />
         </Box>
         <DialogContent>
-          <QRCode
-            level="Q"
-            value={JSON.stringify(QRCodeValue)}
-            width="100%"
-          />
-          <Box mt={3}>Or use your bank token: 
-            <CopyToClipboard text={token}>
-              <Button variant="text">{token}</Button>
-            </CopyToClipboard></Box>
+          <QRCode level="Q" value={JSON.stringify(QRCodeValue)} width="100%" />
         </DialogContent>
-
       </Dialog>
     </div>
   );
 }
-
 
 export interface QRCodeProps {
   asaID: string;

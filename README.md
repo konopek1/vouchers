@@ -1,62 +1,18 @@
-## Description
+# Requirements
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- docker
+- docker-compose
+- node v12+
 
-## Set up dev environment
-* works on linux and windows
-* docker-compose and docker required
-* provide
-  * algorand client (sandbox)
-  * postgresql
-  * pgadmin
-```bash
-$ docker-compose up
-# execute command in algod
-$ docker-compose exec algod goal status
-```
-
-## Installation
+# How to run
 
 ```bash
-$ npm install
+DIR/sandbox $ docker-compose up -d
+DIR $ docker-compose up
+APP_DIR $ npm run build
+APP_DIR $ npm run build
+DIR $ npm i
+DIR $ npm start
 ```
 
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-  Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Access page on http://localhost:8080

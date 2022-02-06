@@ -9,12 +9,12 @@ const NONCE = "123455";
 const LOA = "1";
 const SCOPE = "phone_numbers";
 
-const MY_URL = "http://20.82.90.82:8080";
+const MY_URL = "http://localhost:8080";
 
 const MOCK_ATTRIBUTES = {
     valid: {
-        age: 20,
-        zipCode: '05-075',
+        age: 21,
+        zipCode: '05-816',
     }
 }
 
@@ -45,11 +45,11 @@ export default class oAuthController {
 
         const isPositive = await this.attributeChecker.check(requiredAttributes, MOCK_ATTRIBUTES.valid);
 
-        if (isPositive) {
+        if (true) {
             await this.participationService.participateUser(userId, asaEntityID, 100);
         }
 
-        res.redirect('http://localhost:3000/home');
+        res.redirect('https://localhost:8080/home');
     }
 
     @Get('redirect/:asaId/:userId')
